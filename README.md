@@ -1,0 +1,2 @@
+# qeditor
+Android editor lib
