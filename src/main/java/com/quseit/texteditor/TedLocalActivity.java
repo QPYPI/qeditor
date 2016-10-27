@@ -25,6 +25,7 @@ import com.quseit.base._WBase;
 import com.quseit.texteditor.common.Constants;
 import com.quseit.texteditor.common.RecentFiles;
 import com.quseit.util.FileHelper;
+import com.quseit.util.NAction;
 import com.quseit.util.NUtil;
 
 import java.io.File;
@@ -109,8 +110,12 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 			}
 
         });
-        
-    	String root = Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/"+CONF.BASE_PATH;
+
+
+    	String root = Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/"+CONF.BASE_PATH; // for qpython apps
+		if (NAction.getCode(this).startsWith("qlua")) { // for qlua5 apps
+			root = Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/qlua5";
+		}
 
         curArtistDir = new Stack<String>();
         String[] xx = root.split("/");

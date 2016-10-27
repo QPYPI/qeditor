@@ -10,7 +10,6 @@ import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -91,7 +90,7 @@ public class BaseActivity extends GDBase {
 	//@SuppressLint("NewApi")
 	protected void initWidgetTabItem(int flag) {
 		String code = NAction.getCode(getApplicationContext());
-		if (code.startsWith("qpy") || code.startsWith("lua5")) {
+		if (code.startsWith("qpy") || code.startsWith("qlua5")) {
 			if (flag == 5) {
 
 				addActionBarItem(getGDActionBar()
@@ -165,15 +164,18 @@ public class BaseActivity extends GDBase {
 	public void callLuaApi(String flag, String param, String luaCode) {
 		String code = NAction.getCode(this);		
 		// todo
-		if (code.contains("lua") || (NUtil.checkAppInstalledByName(this, "com.quseit.lua5") || NUtil.checkAppInstalledByName(this, "com.quseit.lua5pro"))) {
-			String scmd = "lua";
+		if (code.contains("lua")) {
+			Intent intent = new Intent(".QLUAIndexActivity");
+			intent.putExtra(CONF.EXTRA_CONTENT_URL0,param);
+			sendBroadcast(intent);
+/*			String scmd = getApplicationContext().getFilesDir()+"/bin/lua";
 	    	if (Build.VERSION.SDK_INT >= 20) { 
-	    		scmd = "lua-android5";
+	    		scmd = getApplicationContext().getFilesDir()+"/bin/lua-android5";
 	
 	    	} 
 	
 			String[] args = {scmd+" "+param+" && sh "+getFilesDir()+"/bin/end.sh && exit"};
-			execInConsole(args);
+			execInConsole(args);*/
 		} else {
     		WBase.setTxtDialogParam(0, R.string.pls_install_lua, new DialogInterface.OnClickListener() {
 				@Override
@@ -505,6 +507,5 @@ public class BaseActivity extends GDBase {
 
 		}
 	}
-	
-	
+	/////
 }

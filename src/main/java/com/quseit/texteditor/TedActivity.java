@@ -893,6 +893,9 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 			// Toast.makeText(this, selectedText, Toast.LENGTH_SHORT).show();
 			// String Search = "http://docs.qpython.org/2/search.html?q=" + selectedText;
 			String Search = "http://docs.qpython.org/doc/?q=" + selectedText;
+			if (NAction.getCode(this).startsWith("lua")) {
+				Search = "http://qlua.quseit.com/doc/?q=" + selectedText;
+			}
 			Intent intent = new Intent(getApplicationContext(), MiniWebViewActivity.class);
 			Uri data = Uri.parse(Search);
 			mReadIntent = false;
@@ -1352,7 +1355,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	 */
 	protected void newProject() {
 
-		final CharSequence items[] = getResources().getStringArray(R.array.qpy_new);
+		final CharSequence items[] = getResources().getStringArray(R.array.files_new);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.info_project_type);

@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <!-- Color themes -->
-    <string-array name="qpy_new">
+    <string-array name="files_new">
         <item>Blank file</item>
         <item>Script</item>
         <item>WebApp (Project)</item>
