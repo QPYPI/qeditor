@@ -14,9 +14,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.quseit.base.DialogBase;
 import com.quseit.base.MyApp;
-import com.quseit.base._WBase;
-import com.quseit.common.GDBase;
+import com.quseit.common.QBaseActivity;
 import com.quseit.util.NAction;
 import com.quseit.util.NUtil;
 
@@ -28,7 +28,7 @@ import greendroid.widget.QuickAction;
 //import com.google.android.gms.ads.AdRequest;
 //import com.google.android.gms.ads.AdView;
 
-public class BaseActivity extends GDBase {
+public class BaseActivity extends QBaseActivity {
     protected static final int SCRIPT_EXEC_PY = 2235;  
     protected static final int SCRIPT_EXEC_CODE = 1235;  
 
@@ -53,7 +53,7 @@ public class BaseActivity extends GDBase {
         LinearLayout modBanner = (LinearLayout)findViewById(R.id.modbanner);
 
         if (NUtil.netCheckin(getApplicationContext()) && !NAction.checkIfPayIAP(getApplicationContext(), "ad")) {
-        	if (NAction.getCode(getApplicationContext()).endsWith("texteditor")) {
+        	if (NAction.getCode(getApplicationContext()).contains("qedit")) {
 	        	if (!NAction.getExtP(getApplicationContext(), "ad_with_"+pageId).equals("0")) {
 //	                adMob = (AdView) findViewById(R.id.adView);
 //	                adMob.setVisibility(View.VISIBLE);
@@ -110,18 +110,25 @@ public class BaseActivity extends GDBase {
 			    addActionBarItem(getGDActionBar()
 		        		.newActionBarItem(NormalActionBarItem.class)
 		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
-
 			}
 		    
-		} else if (code.contains("texteditor")) {
-			if (flag == 5) {
-				addActionBarItem(getGDActionBar()
-		        		.newActionBarItem(NormalActionBarItem.class)
-		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_save_white)), 25);
-			}
+		} else if (code.contains("qedit")) {
+            addActionBarItem(getGDActionBar()
+                    .newActionBarItem(NormalActionBarItem.class)
+                    .setDrawable(new ActionBarDrawable(this, R.drawable.ic_note_add_white)), 30);
+
 			addActionBarItem(getGDActionBar()
 					.newActionBarItem(NormalActionBarItem.class)
-					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
+					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_folder_open_white)), 20);
+
+//			if (flag == 5) {
+//				addActionBarItem(getGDActionBar()
+//		        		.newActionBarItem(NormalActionBarItem.class)
+//		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_save_white)), 25);
+//			}
+			addActionBarItem(getGDActionBar()
+					.newActionBarItem(NormalActionBarItem.class)
+					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_more_vert_white)), 50);
 		} else {
 			
 			
@@ -162,21 +169,15 @@ public class BaseActivity extends GDBase {
     
     @SuppressWarnings("deprecation")
 	public void callLuaApi(String flag, String param, String luaCode) {
-		String code = NAction.getCode(this);		
+		String code = NAction.getCode(this);
+		String luaApp = "com.quseit.qlua5pro2";
 		// todo
 		if (code.contains("lua")) {
 			Intent intent = new Intent(".QLUAIndexActivity");
-			intent.putExtra(CONF.EXTRA_CONTENT_URL0,param);
+			intent.putExtra(CONF.EXTRA_CONTENT_URL0, param);
 			sendBroadcast(intent);
-/*			String scmd = getApplicationContext().getFilesDir()+"/bin/lua";
-	    	if (Build.VERSION.SDK_INT >= 20) { 
-	    		scmd = getApplicationContext().getFilesDir()+"/bin/lua-android5";
-	
-	    	} 
-	
-			String[] args = {scmd+" "+param+" && sh "+getFilesDir()+"/bin/end.sh && exit"};
-			execInConsole(args);*/
-		} else {
+
+		}  else {
     		WBase.setTxtDialogParam(0, R.string.pls_install_lua, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -196,7 +197,7 @@ public class BaseActivity extends GDBase {
 				}
 				}, null);
     		
-    		showDialog(_WBase.DIALOG_EXIT+dialogIndex);
+    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
     		dialogIndex++;
 
 
@@ -281,7 +282,7 @@ public class BaseActivity extends GDBase {
 		    				}
 						}
 					}, null);
-		    		showDialog(_WBase.DIALOG_EXIT+dialogIndex);
+		    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
 		    		dialogIndex++;
 		    		
 				}
@@ -290,7 +291,7 @@ public class BaseActivity extends GDBase {
 				
 				if (NUtil.checkAppInstalledByName(getApplicationContext(), extPlgPlusName)) {
 					Intent intent = new Intent();
-					intent.setClassName(extPlgPlusName, "org.qpython.qpyplib.MPyApi");
+					intent.setClassName(extPlgPlusName, "org.qpython.qpylib.MPyApi");
 					intent.setAction("org.qpython.qpyplib.action.MPyApi");
 					
 					Bundle mBundle = new Bundle(); 
@@ -307,7 +308,7 @@ public class BaseActivity extends GDBase {
 				} else if (NUtil.checkAppInstalledByName(getApplicationContext(), extPlgName)) {
 					
 					Intent intent = new Intent();
-					intent.setClassName(extPlgName, "org.qpython.qpyplib.MPyApi");
+					intent.setClassName(extPlgName, "org.qpython.qpylib.MPyApi");
 					intent.setAction("org.qpython.qpyplib.action.MPyApi");
 					
 					Bundle mBundle = new Bundle(); 
@@ -335,7 +336,7 @@ public class BaseActivity extends GDBase {
 							startActivity(intent);
 						}
 					}, null);
-		    		showDialog(_WBase.DIALOG_EXIT+dialogIndex);
+		    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
 		    		dialogIndex++;
 				}
 			}
@@ -476,7 +477,7 @@ public class BaseActivity extends GDBase {
 							}
 						}
 					}, null);
-		    		showDialog(_WBase.DIALOG_EXIT+dialogIndex);
+		    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
 		    		dialogIndex++;
 				}
 			}        	
@@ -491,7 +492,6 @@ public class BaseActivity extends GDBase {
 		intent.putExtra(CONF.EXTRA_CONTENT_URL0, "main");
 		intent.putExtra("ARGS", args);
 		startActivityForResult(intent,SCRIPT_CONSOLE_CODE);
-
     }
 
 	@Override

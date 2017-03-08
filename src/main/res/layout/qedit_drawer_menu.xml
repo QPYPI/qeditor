@@ -3,7 +3,8 @@
     xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#fff" >
+    xmlns:greenDroid="http://schemas.android.com/tools"
+    android:background="#fff">
 
     <RelativeLayout
         android:id="@+id/menu_layout_top"
@@ -11,13 +12,13 @@
         android:layout_height="wrap_content"
         android:background="#222" >
 
-        <AsyncImageView
+        <ImageView
             android:id="@+id/menu_head_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:paddingLeft="15dp"
-            android:src="@drawable/micon_editor"
+            android:src="@null"
             />
 
         <TextView

@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.quseit.base.MyApp;
-import com.quseit.base._WBase;
+import com.quseit.base.DialogBase;
 import com.quseit.util.NAction;
 import com.quseit.util.NUtil;
 import com.quseit.view.AdSlidShowView;
@@ -59,18 +59,18 @@ public class MSettingActivity extends BaseActivity {
 	        fb.setVisibility(View.VISIBLE);
         }
 
-        findViewById(R.id.plugin_pro_box).setVisibility(View.VISIBLE);
+        //findViewById(R.id.plugin_pro_box).setVisibility(View.VISIBLE);
 
-        RelativeLayout rb = (RelativeLayout)findViewById(R.id.proxy_box);
-        rb.setVisibility(View.GONE);
-        
-        //if (NAction.getExtP(getApplicationContext(), "conf_is_pro").equals("1")) {
-        RelativeLayout fb = (RelativeLayout)findViewById(R.id.plugin_ftp_box);
-        fb.setVisibility(View.VISIBLE);
-        //}
+//        RelativeLayout rb = (RelativeLayout)findViewById(R.id.proxy_box);
+//        rb.setVisibility(View.GONE);
+//
+//        //if (NAction.getExtP(getApplicationContext(), "conf_is_pro").equals("1")) {
+//        RelativeLayout fb = (RelativeLayout)findViewById(R.id.plugin_ftp_box);
+//        fb.setVisibility(View.GONE);
+//        //}
 
-        RelativeLayout pb = (RelativeLayout)findViewById(R.id.plugin_defaultroot_box);
-        pb.setVisibility(View.VISIBLE);
+//        RelativeLayout pb = (RelativeLayout)findViewById(R.id.plugin_defaultroot_box);
+//        pb.setVisibility(View.VISIBLE);
 
         /*
         if (NAction.getExtP(this, "conf_is_pro").equals("0")) {
@@ -109,8 +109,11 @@ public class MSettingActivity extends BaseActivity {
         TextView pwd = (TextView)findViewById(R.id.proxy_pwd_value);
         pwd.setText(NAction.getProxyPwd(getApplicationContext()));*/
         
-        displayDefaultRoot();
-        displayProxy();
+        //displayDefaultRoot();
+		findViewById(R.id.plugin_setting_title).setVisibility(View.GONE);
+		findViewById(R.id.plugin_setting_title_line).setVisibility(View.GONE);
+
+		displayProxy();
         showRecommandAd();
         
         MNApp mnApp = (MNApp) this.getApplication();
@@ -208,8 +211,6 @@ public class MSettingActivity extends BaseActivity {
     
     
     public void displayDefaultRoot() {
-    	//String proxyHost = NAction.getProxyHost(getApplicationContext());
-    	//String proxyPort = NAction.getProxyPort(getApplicationContext());
     	String root = NAction.getDefaultRoot(getApplicationContext());
 
     	if (root.equals("")) {
@@ -273,7 +274,7 @@ public class MSettingActivity extends BaseActivity {
 
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY2+1);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY2+1);
     }
 
  
@@ -317,7 +318,7 @@ public class MSettingActivity extends BaseActivity {
 				        }
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+dialogIndex);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 		dialogIndex++;
 	}
     
@@ -336,7 +337,7 @@ public class MSettingActivity extends BaseActivity {
 				        media.setText(content);
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+dialogIndex);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 		dialogIndex++;
     }
     
@@ -363,7 +364,7 @@ public class MSettingActivity extends BaseActivity {
 				        }
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+2);*/
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+2);*/
 	}
 
 	/*public void setProxyUsername(View v) {
@@ -380,7 +381,7 @@ public class MSettingActivity extends BaseActivity {
 						username.setText(content);
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+3);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+3);
 	}
 	
 	public void setProxyPwd(View v) {
@@ -397,7 +398,7 @@ public class MSettingActivity extends BaseActivity {
 						pwd.setText(content);
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+4);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+4);
 	}*/
 	
 

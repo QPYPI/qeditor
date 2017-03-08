@@ -16,8 +16,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.quseit.base.DialogBase;
 import com.quseit.base.MyApp;
-import com.quseit.base._WBase;
 import com.quseit.util.NAction;
 import com.quseit.util.NUtil;
 
@@ -152,7 +152,7 @@ public class MFTPSettingActivity extends BaseActivity {
 
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY2+dialogIndex);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY2+dialogIndex);
 		dialogIndex++;
     }
  
@@ -181,7 +181,7 @@ public class MFTPSettingActivity extends BaseActivity {
 				        }
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+dialogIndex);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 		dialogIndex++;
 	}
 	

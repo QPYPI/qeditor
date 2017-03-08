@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="app_name">QEdit 免費版</string>
-<string name="app_label">QEdit 免費版</string>
+<string name="app_name">QEdit</string>
+<string name="app_label">QEdit</string>
 
 <string name="app_name_full">QEdit（文本編輯）</string>
 <!-- -->
@@ -110,7 +110,7 @@
 <string name="fail_to_goto">請輸入正確的號碼</string>
 <string name="max_lines_num_with_syntax_title">自動高亮</string>
 <string name="max_lines_num_with_syntax_summary">自動突出顯示，如果行數少於</string>
-<string name="qedit_not_support">QEditor 僅僅支持預覽或執行以下類型的文件\n.py，.SH，.lua，html，.md。 </string>
+<string name="qedit_not_support">QEdit 僅僅支持預覽或執行以下類型的文件\n.py，.SH，.lua，html，.md。 </string>
 <string name="qedit_save_first">請保存文件</string>
 <string name="private4qe_version">100.00</string>
 <string name="pls_install_lua">請安裝QLua 運行LUA 腳本</string>

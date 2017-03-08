@@ -28,16 +28,16 @@ public class OAboutActivity extends BaseActivity {
         String[] appConf = NAction.getAppConf(getApplicationContext());
         String about = appConf[0];
         String link = appConf[1];
-        String feed = appConf[2];
-        String feedUrl = appConf[3];
+        String privacyTitle = appConf[2];
+        String privacyUrl = appConf[3];
 
         //String selfcheck = appConf[4];
         //String selfCheckTitle = appConf[5];
         
         TextView aboutT = (TextView)findViewById(R.id.about);
         TextView marketLink = (TextView)findViewById(R.id.market_link);
-        TextView feedT = (TextView)findViewById(R.id.feed_content);
-        TextView feedLink = (TextView)findViewById(R.id.feed_link);
+        TextView feedT = (TextView)findViewById(R.id.privacy_title);
+        TextView feedLink = (TextView)findViewById(R.id.privacy_link);
         //TextView updateT = (TextView)findViewById(R.id.update_content);
 
         //Button selfCheckBtn = (Button)findViewById(R.id.selfcheck_btn);
@@ -52,12 +52,12 @@ public class OAboutActivity extends BaseActivity {
         	marketLink.setVisibility(View.VISIBLE);
         }
         
-        if (!feed.equals("")) {
-        	feedT.setText(feed);
+        if (!privacyTitle.equals("")) {
+        	feedT.setText(privacyTitle);
         	feedT.setVisibility(View.VISIBLE);
         }
-        if (!feedUrl.equals("") && !feed.equals("")) {
-        	feedLink.setText(feedUrl);
+        if (!privacyUrl.equals("") && !privacyTitle.equals("")) {
+        	feedLink.setText(privacyUrl);
         	feedLink.setVisibility(View.VISIBLE);
         }
         

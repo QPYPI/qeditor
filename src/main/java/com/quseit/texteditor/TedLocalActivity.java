@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.quseit.base._WBase;
+import com.quseit.base.DialogBase;
 import com.quseit.texteditor.common.Constants;
 import com.quseit.texteditor.common.RecentFiles;
 import com.quseit.util.FileHelper;
@@ -108,13 +108,18 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 		    	mBarT.show(view);
 				return false;
 			}
-
-        });
-
+	         });
 
     	String root = Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/"+CONF.BASE_PATH; // for qpython apps
 		if (NAction.getCode(this).startsWith("qlua")) { // for qlua5 apps
 			root = Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/qlua5";
+		} else if (NAction.getCode(this).contains("qedit")) {
+			root = NAction.getDefaultRoot(getApplicationContext());
+
+			if (root.equals("")) {
+				root = Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/";
+			}
+
 		}
 
         curArtistDir = new Stack<String>();
@@ -144,7 +149,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 				public void onClick(DialogInterface arg0, int arg1) {
 				}
     		});
-    		showDialog(_WBase.DIALOG_NOTIFY_MESSAGE+dialogIndex);
+    		showDialog(DialogBase.DIALOG_NOTIFY_MESSAGE+dialogIndex);
     		dialogIndex++;
 
     	} else {
@@ -277,10 +282,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 	    	adapter.notifyDataSetChanged();
 
     	} else {
-			//CacheLog cDL = new CacheLog(getApplicationContext());
-	
-	    	//Map<String, Integer> movieDirs = MyApp.getInstance().getAvaiDirs(dirname, false, false);
-	
+
 	    	if (dirname!=null && !dirname.equals("")) {
 	    		curArtistDir.push(curArtistDir.peek()+"/"+dirname);
 	    	}
@@ -289,7 +291,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 	    	
 	    	File d = new File(curDir);
 	    	if (d.exists()) {
-		    	//Log.d(TAG, "curDi:r"+curDir);
+		    	Log.d(TAG, "curDir:"+curDir);
 		    	
 		    	String filename,fullfn;
 		    	DrawableItem sItem;
@@ -320,22 +322,9 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 								
 							} else {
 								
-								//String ext = FileHelper.getExt(filename.toLowerCase(), "");
 								String lname = filename.toLowerCase();
 								boolean dis = true;
-								/*if (code.startsWith("qpy")) {
-									if (lname.endsWith(".py") || lname.endsWith(".kv")) {
-										dis = true;
-									}
-									
-								} else if (code.startsWith("lua")) {
-									if (lname.endsWith(".lua")) {
-										dis = true;
-									}
-								} else {
-									dis = true;
-								}*/
-								
+
 								if (dis) {
 									int icon;
 									if (lname.endsWith(".py")) {
@@ -409,7 +398,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 	
 						}
 					},null);
-			showDialog(_WBase.DIALOG_TEXT_ENTRY+dialogIndex);
+			showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 			dialogIndex++;
     	}
     }
@@ -431,7 +420,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 		    	adapter.notifyDataSetChanged();
 			}
 			});
-			showDialog(_WBase.DIALOG_YES_NO_MESSAGE+dialogIndex);
+			showDialog(DialogBase.DIALOG_YES_NO_MESSAGE+dialogIndex);
 			dialogIndex++;
     }
     /**
@@ -562,7 +551,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 				        //
 					}
 				},null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY+dialogIndex);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 		dialogIndex++;
     }
     
@@ -582,7 +571,7 @@ public class TedLocalActivity extends BaseActivity implements Constants {
 					setSaveResult(f.getAbsolutePath().toString());
 				}
 				});
-				showDialog(_WBase.DIALOG_YES_NO_MESSAGE+dialogIndex);
+				showDialog(DialogBase.DIALOG_YES_NO_MESSAGE+dialogIndex);
 				dialogIndex++;
 			} else {
 				setSaveResult(f.getAbsolutePath().toString());

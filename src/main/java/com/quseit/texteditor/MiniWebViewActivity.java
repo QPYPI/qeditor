@@ -12,13 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.quseit.base.DialogBase;
 import com.quseit.util.FileHelper;
 import com.quseit.util.NAction;
 import com.quseit.util.NRequest;
 import com.quseit.util.NUtil;
 import com.quseit.widget.RightDrawableOnTouchListener;
 import com.quseit.asihttp.AsyncHttpResponseHandler;
-import com.quseit.base._WBase;
 
 import greendroid.widget.ItemAdapter;
 import greendroid.widget.item.ProgressItem;
@@ -237,7 +237,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 											}
 			        					}
 		        				});
-		                        showDialog(_WBase.DIALOG_SINGLE_LIST+dialogIndex);
+		                        showDialog(DialogBase.DIALOG_SINGLE_LIST+dialogIndex);
 		                        dialogIndex++;
 		                	} else {
 			                	Toast.makeText(getApplicationContext(), R.string.no_videos_found, Toast.LENGTH_LONG).show();
@@ -318,7 +318,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 					}
 	    			
 	    		});
-	    		showDialog(_WBase.DIALOG_YES_NO_LONG_MESSAGE+dialogIndex);
+	    		showDialog(DialogBase.DIALOG_YES_NO_LONG_MESSAGE+dialogIndex);
 	    		dialogIndex++;
 
 			} else {
@@ -337,7 +337,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 						public void onClick(DialogInterface dialog, int which) {
 						}
 		    		});
-		    		showDialog(_WBase.DIALOG_YES_NO_LONG_MESSAGE+dialogIndex);
+		    		showDialog(DialogBase.DIALOG_YES_NO_LONG_MESSAGE+dialogIndex);
 		    		dialogIndex++;
 				} else {
 					//tbdownload(title, addr, cat);
@@ -419,7 +419,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 	    					        downloadReceiver(title, url,ext);
 	    						}
 	    					},null);
-	    			showDialog(_WBase.DIALOG_TEXT_ENTRY+dialogIndex);
+	    			showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 	    			dialogIndex++;
     			/*} catch (Exception e) {
     				
@@ -541,7 +541,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 	        					}
 	        				},null);
 	        		
-	                showDialog(_WBase.DIALOG_SINGLE_CHOICE+dialogIndex);
+	                showDialog(DialogBase.DIALOG_SINGLE_CHOICE+dialogIndex);
 	                dialogIndex = dialogIndex+1;
 	                
 	            } else {

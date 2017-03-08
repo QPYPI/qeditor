@@ -61,6 +61,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.quseit.base.DialogBase;
 import com.quseit.texteditor.common.Constants;
 import com.quseit.texteditor.common.RecentFiles;
 import com.quseit.texteditor.common.Settings;
@@ -69,7 +70,6 @@ import com.quseit.texteditor.common.TextFileUtils;
 import com.quseit.texteditor.ui.view.AdvancedEditText;
 import com.quseit.texteditor.undo.TextChangeWatcher;
 import com.quseit.base.MyApp;
-import com.quseit.base._WBase;
 import com.quseit.util.NAction;
 import com.quseit.util.NStorage;
 
@@ -112,7 +112,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		initAD(TAG);
 		// }
 
-		if (code.equals("texteditor")) {
+		if (code.contains("qedit")) {
 			ImageButton homeBtn = (ImageButton) findViewById(R.id.gd_action_bar_home_item);
 			homeBtn.setImageResource(R.drawable.ic_menu_white);
 
@@ -220,7 +220,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		super.onDestroy();
 		String code = NAction.getCode(this);
 
-		if (code.equals("texteditor")) {
+		if (code.equals("qedit")) {
 
 			MyApp.getInstance().exit();
 		}
@@ -260,10 +260,12 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		File folder = new File(path);
 		if (folder.exists()) {
 			File[] listOfFiles = folder.listFiles();
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					files = listOfFiles[i].getName();
-					listItems.add(files);
+			if (listOfFiles!=null) {
+				for (int i = 0; i < listOfFiles.length; i++) {
+					if (listOfFiles[i].isFile()) {
+						files = listOfFiles[i].getName();
+						listItems.add(files);
+					}
 				}
 			}
 		}
@@ -292,7 +294,6 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	/**
 	 * 
 	 * @param snippetName
-	 * @param Snippet to intsert into EditText
 	 * @throws IOException
 	 */
 	public void insertSnippet(String snippetName) throws IOException {
@@ -340,7 +341,6 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 							mEditor.setText(result);
 						}
 						catch (UnsupportedEncodingException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -417,7 +417,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 
 								}
 							});
-					showDialog(_WBase.DIALOG_YES_NO_MESSAGE + dialogIndex);
+					showDialog(DialogBase.DIALOG_YES_NO_MESSAGE + dialogIndex);
 					dialogIndex++;
 
 				}
@@ -524,7 +524,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 
 	@Override
 	public int createLayout() {
-		if (NAction.getCode(getApplicationContext()).equals("texteditor")) {
+		if (NAction.getCode(getApplicationContext()).contains("qedit")) {
 
 			return R.layout.gd_content_drawer;
 		}
@@ -538,8 +538,8 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	}
 
 	private void initDrawerMenu(Context context) {
-		findViewById(R.id.handle_save).setVisibility(View.GONE);
-		findViewById(R.id.handle_history).setVisibility(View.GONE);
+		//findViewById(R.id.handle_save).setVisibility(View.GONE);
+		//findViewById(R.id.handle_history).setVisibility(View.GONE);
 		
 	   	LinearLayout drawerPanent=(LinearLayout) findViewById(R.id.gd_drawer_layout_left);
 		drawerPanent.removeAllViews();
@@ -583,11 +583,11 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	    sItem1.setTag(0, "open");
 	    DrawableItem sItem2 = new DrawableItem(getString(R.string.menu_new), R.drawable.ic_add_black);
 	    sItem2.setTag(0, "new");
-	    DrawableItem sItem3 = new DrawableItem(getString(R.string.menu_open_recent), R.drawable.ic_sort_black);
-	    sItem3.setTag(0, "recent");
+//	    DrawableItem sItem3 = new DrawableItem(getString(R.string.menu_open_recent), R.drawable.ic_sort_black);
+//	    sItem3.setTag(0, "recent");
 		adapter.add(sItem1);
 		adapter.add(sItem2);
-		adapter.add(sItem3);
+//		adapter.add(sItem3);
 
 //		final ArrayList<String> mList = RecentFiles.getRecentFiles();
 //		if (mList!=null) {
@@ -713,7 +713,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 								public void onClick(DialogInterface arg0, int arg1) {
 								}
 							});
-					showDialog(_WBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
+					showDialog(DialogBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
 					dialogIndex++;
 				}
 			}
@@ -1435,7 +1435,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 													public void onClick(DialogInterface arg0, int arg1) {
 													}
 												});
-										showDialog(_WBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
+										showDialog(DialogBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
 										dialogIndex++;
 
 									}
@@ -1451,7 +1451,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 							//
 						}
 					}, null);
-			showDialog(_WBase.DIALOG_TEXT_ENTRY + dialogIndex);
+			showDialog(DialogBase.DIALOG_TEXT_ENTRY + dialogIndex);
 			dialogIndex++;
 
 			// Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
@@ -1524,7 +1524,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 													public void onClick(DialogInterface arg0, int arg1) {
 													}
 												});
-										showDialog(_WBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
+										showDialog(DialogBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
 										dialogIndex++;
 
 									}
@@ -1540,7 +1540,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 							//
 						}
 					}, null);
-			showDialog(_WBase.DIALOG_TEXT_ENTRY + dialogIndex);
+			showDialog(DialogBase.DIALOG_TEXT_ENTRY + dialogIndex);
 			dialogIndex++;
 		}
 	}
@@ -1690,7 +1690,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		mAfterSave = new Runnable() {
 			@Override
 			public void run() {
-				if (code.equals("texteditor")) {
+				if (code.contains("qedit")) {
 
 				}
 				else {
@@ -1735,9 +1735,9 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		 * case 35: newProject(); break;
 		 */
 
-		// case 40:
-		// onGSetting(null);
-		// break;
+		 case 50:
+			 onGSetting(null);
+			 break;
 		default:
 
 		}
@@ -1766,7 +1766,9 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	public boolean onKeyUp(int keyCoder, KeyEvent event) {
 		boolean isCtr = false;
 		try {
-			isCtr = event.isCtrlPressed();
+			if (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB) {
+				isCtr = event.isCtrlPressed();
+			}
 		} catch (NoSuchMethodError e) {
 			
 		}
@@ -1777,7 +1779,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 			}
 			else {
 
-				if (code.equals("texteditor")) {
+				if (code.contains("qedit")) {
 					if (mCurrentFilePath == null) {
 						if (mDirty) {
 							quitWithoutSave();
@@ -1939,7 +1941,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 							finish();
 						}
 					}, null);
-			showDialog(_WBase.DIALOG_BTN_ENTRY1 + dialogIndex);
+			showDialog(DialogBase.DIALOG_BTN_ENTRY1 + dialogIndex);
 			dialogIndex++;
 
 		}
@@ -1953,7 +1955,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 							finish();
 						}
 					}, null);
-			showDialog(_WBase.DIALOG_BTN_ENTRY1 + dialogIndex);
+			showDialog(DialogBase.DIALOG_BTN_ENTRY1 + dialogIndex);
 			dialogIndex++;
 		}
 	}
@@ -2253,7 +2255,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 
 			}
 		}, null);
-		showDialog(_WBase.DIALOG_TEXT_ENTRY + 1);
+		showDialog(DialogBase.DIALOG_TEXT_ENTRY + 1);
 		/*
 		 * AlertDialog.Builder builder = new AlertDialog.Builder(this); builder.setTitle(R.string.line_picker_title);
 		 * final EditText input = new EditText(this); input.setInputType(InputType.TYPE_CLASS_NUMBER); input.setHint();
@@ -2299,7 +2301,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 					else if (mCurrentFilePath.endsWith(".sh")) {
 						// todo
 	
-						String[] args = { "sh " + mCurrentFilePath + " && sh " + getFilesDir() + "/bin/end.sh && exit" };
+						String[] args = { "sh " + mCurrentFilePath  };
 						execInConsole(args);
 	
 						// qpy not support
@@ -2447,7 +2449,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	/**
 	 * Read file to String
 	 * 
-	 * @param path of file
+	 * @param
 	 * @return contents of file
 	 * @throws IOException
 	 */
