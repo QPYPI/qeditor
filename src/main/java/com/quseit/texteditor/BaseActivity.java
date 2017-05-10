@@ -187,11 +187,11 @@ public class BaseActivity extends QBaseActivity {
     					plgUrl = CONF.EXT_PLG_URL4;
     				}
     				try {
-						Intent intent = NAction.openRemoteLink(getApplicationContext(), plgUrl);
+						Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
 						startActivity(intent);
     				} catch (Exception e) {
     					plgUrl = CONF.EXT_PLG_URL4;
-						Intent intent = NAction.openRemoteLink(getApplicationContext(), plgUrl);
+						Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
 						startActivity(intent);
     				}
 				}
@@ -273,11 +273,11 @@ public class BaseActivity extends QBaseActivity {
 		    					plgUrl = CONF.EXT_PLG_URL3;
 		    				}
 		    				try {
-								Intent intent = NAction.openRemoteLink(getApplicationContext(), plgUrl);
+								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
 								startActivity(intent);
 		    				} catch (Exception e) {
 		    					plgUrl = CONF.EXT_PLG_URL3;
-								Intent intent = NAction.openRemoteLink(getApplicationContext(), plgUrl);
+								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
 								startActivity(intent);
 		    				}
 						}
@@ -332,7 +332,7 @@ public class BaseActivity extends QBaseActivity {
 		    				if (plgUrl.equals("")) {
 		    					plgUrl = com.quseit.config.CONF.EXT_PLG_URL;
 		    				}
-							Intent intent = NAction.openRemoteLink(getApplicationContext(), plgUrl);
+							Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
 							startActivity(intent);
 						}
 					}, null);
@@ -468,11 +468,11 @@ public class BaseActivity extends QBaseActivity {
 							
 							//if (pkgUrl.startsWith("http:")) {
 							try {
-								Intent intent = NAction.openRemoteLink(getApplicationContext(), pkgUrl);
+								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), pkgUrl);
 								startActivity(intent);
 							} catch (Exception e) {
 								pkgUrl = CONF.A8_PLAY_URL2;
-								Intent intent = NAction.openRemoteLink(getApplicationContext(), pkgUrl);
+								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), pkgUrl);
 								startActivity(intent);
 							}
 						}

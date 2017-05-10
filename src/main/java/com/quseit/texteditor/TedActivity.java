@@ -1965,7 +1965,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	 */
 	public void onExitPrompt1(View v) {
 
-		Intent intent = NAction.openRemoteLink(getApplicationContext(), CONF.COMMUNITY_LINK);
+		Intent intent = NAction.getLinkAsIntent(getApplicationContext(), CONF.COMMUNITY_LINK);
 		startActivity(intent);
 	}
 
@@ -1977,7 +1977,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		if (url.equals("")) {
 			url = CONF.NEWS_LINK;
 		}
-		Intent intent = NAction.openRemoteLink(getApplicationContext(), url);
+		Intent intent = NAction.getLinkAsIntent(getApplicationContext(), url);
 		startActivity(intent);
 	}
 
@@ -2498,11 +2498,11 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 			url = CONF.QEDIT_RATE_LINK;
 		}
 		try {
-			Intent intent = NAction.openRemoteLink(getApplicationContext(), url);
+			Intent intent = NAction.getLinkAsIntent(getApplicationContext(), url);
 			startActivity(intent);
 		}
 		catch (Exception e) {
-			Intent intent = NAction.openRemoteLink(getApplicationContext(), CONF.QEDIT_RATE_LINK);
+			Intent intent = NAction.getLinkAsIntent(getApplicationContext(), CONF.QEDIT_RATE_LINK);
 			startActivity(intent);
 
 		}
