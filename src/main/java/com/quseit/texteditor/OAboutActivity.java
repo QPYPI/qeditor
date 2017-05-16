@@ -16,7 +16,7 @@ public class OAboutActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBarContentView(R.layout.o_about);
+        setContentView(R.layout.o_about);
         setTitle(R.string.m_title_aboutus);
         
         initWidgetTabItem(3);

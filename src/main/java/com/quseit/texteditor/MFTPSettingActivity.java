@@ -34,7 +34,7 @@ public class MFTPSettingActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBarContentView(R.layout.m_ftp_setting);
+        setContentView(R.layout.m_ftp_setting);
         setTitle(R.string.swiftp_name);
 
         //initWidgetTabItem(4);
@@ -60,9 +60,9 @@ public class MFTPSettingActivity extends BaseActivity {
         filter.addAction(org.swiftp.FTPServerService.ACTION_FAILEDTOSTART);
         registerReceiver(ftpServerReceiver, filter);
         
-        MNApp mnApp = (MNApp) this.getApplication();
-
-        MyApp.getInstance().addActivity(this); 
+//        MNApp mnApp = (MNApp) this.getApplication();
+//
+//        MyApp.getInstance().addActivity(this);
     }
     
     @Override

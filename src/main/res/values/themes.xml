@@ -19,33 +19,5 @@
 
 <resources>
 
-	<style name="Theme.GDCatalogNB" parent="@style/Theme.GreenDroid.NoTitleBar">
-		<item name="gdActionBarTitleColor">@android:color/white</item>	
-			
-		<item name="gdActionBarBackground">@color/topbar</item>
-		<item name="gdActionBarDividerDrawable">@null</item>
-		<item name="gdActionBarDividerWidth">1px</item>
-		<item name="gdActionBarApplicationDrawable">@drawable/icon_nb_editor</item>
-		<item name="gdTabIndicatorStyle">@style/GreenDroid.Widget.TabIndicator</item>
-		<item name="gdTabIndicatorBackground">@drawable/v_tab_indicator</item>	
-		<item name="gdItemViewPreferredHeight">40dip</item>
-		<item name="gdDrawableItemViewStyleDrawable">@style/GreenDroid.Widget.ItemView.DrawableItemView.Drawable</item>		
-		<item name="gdActionBarHomeDrawable">@drawable/icon_nb_editor</item>		
-
-	</style>
-	
-	<style name="Theme.GDCatalog" parent="@style/Theme.GreenDroid.NoTitleBar">
-		<item name="gdActionBarTitleColor">@android:color/white</item>	
-			
-		<item name="gdActionBarBackground">@color/topbar</item>
-		<item name="gdActionBarDividerDrawable">@null</item>
-		<item name="gdActionBarDividerWidth">1px</item>
-		<item name="gdActionBarApplicationDrawable">@null</item>
-		<item name="gdTabIndicatorStyle">@style/GreenDroid.Widget.TabIndicator</item>
-		<item name="gdTabIndicatorBackground">@drawable/v_tab_indicator</item>	
-		<item name="gdItemViewPreferredHeight">40dip</item>
-		<item name="gdDrawableItemViewStyleDrawable">@style/GreenDroid.Widget.ItemView.DrawableItemView.Drawable</item>		
-	</style>
-
     
 </resources>

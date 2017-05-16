@@ -1,70 +1,86 @@
 package com.quseit.texteditor.ui.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.quseit.texteditor.R;
+import com.quseit.texteditor.ui.adapter.bean.FolderBean;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A File List Adapter
- * 
- * @author x.gouchet
- * 
+ *
+ * @author Hmei
  */
-public class PathListAdapter extends ArrayAdapter<String> {
+public class PathListAdapter extends BaseAdapter {
+    private List<FolderBean> dataList;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param context
-	 *            The current context
-	 * @param objects
-	 *            The objects to represent in the ListView.
-	 */
-	public PathListAdapter(Context context, ArrayList<String> objects) {
-		super(context, R.layout.item_file, objects);
-	}
+    public PathListAdapter(List<FolderBean> dataList) {
+        this.dataList = dataList;
+    }
 
-	/**
-	 * @see ArrayAdapter#getView(int, View, ViewGroup)
-	 */
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View v;
-		String path;
-		TextView compound;
+    @Override
+    public int getCount() {
+        return dataList.size();
+    }
 
-		// recycle view
-		v = convertView;
-		if (v == null) {
-			LayoutInflater vi = (LayoutInflater) getContext().getSystemService(
-					Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.item_file, null);
-		}
+    @Override
+    public FolderBean getItem(int position) {
+        return dataList.get(position);
+    }
 
-		// get displayed file and current view
-		path = getItem(position);
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-		// set the layout content
-		compound = (TextView) v.findViewById(R.id.textFileName);
-		if (compound != null) {
-			if (path == null) {
-				compound.setText("");
-				compound.setCompoundDrawablesWithIntrinsicBounds(
-						R.drawable.file_unknown, 0, 0, 0);
-			} else {
-				compound.setText(path);
-				compound.setCompoundDrawablesWithIntrinsicBounds(
-						R.drawable.file, 0, 0, 0);
-			}
-		}
-		return v;
-	}
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            holder = new ViewHolder();
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_folder, null);
+            holder.setName((TextView) convertView.findViewById(R.id.tv_file_name));
+            holder.setIcon((ImageView) convertView.findViewById(R.id.iv_file_icon));
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.getName().setText(getItem(position).getName());
+        switch (getItem(position).getType()) {
+            case FILE:
+                holder.getIcon().setImageResource(R.drawable.ic_editor_pyfile);
+                break;
+            case FOLDER:
+                holder.getIcon().setImageResource(R.drawable.ic_editor_folder);
+                break;
+        }
+        return convertView;
+    }
 
+    private static class ViewHolder {
+        private ImageView icon;
+        private TextView  name;
+
+        public ImageView getIcon() {
+            return icon;
+        }
+
+        public void setIcon(ImageView icon) {
+            this.icon = icon;
+        }
+
+        public TextView getName() {
+            return name;
+        }
+
+        public void setName(TextView name) {
+            this.name = name;
+        }
+    }
 }

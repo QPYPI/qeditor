@@ -112,7 +112,7 @@ public class TedOpenRecentActivity extends Activity implements Constants, OnClic
 		} else {
 			RecentFiles.removePath(path);
 			RecentFiles.saveRecentList(getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE));
-			((PathListAdapter) mListAdapter).notifyDataSetChanged();
+//			((PathListAdapter) mListAdapter).notifyDataSetChanged();
 			Toaster.showToast(this, R.string.toast_recent_files_invalid, true);
 		}
 
@@ -132,10 +132,10 @@ public class TedOpenRecentActivity extends Activity implements Constants, OnClic
 		}
 
 		// create string list adapter
-		mListAdapter = new PathListAdapter(this, mList);
+//		mListAdapter = new PathListAdapter(this, mList);
 
 		// set adpater
-		mFilesList.setAdapter(mListAdapter);
+//		mFilesList.setAdapter(mListAdapter);
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class TedOpenRecentActivity extends Activity implements Constants, OnClic
 	/** the dialog's list view */
 	protected ListView mFilesList;
 	/** The list adapter */
-	protected ListAdapter mListAdapter;
+//	protected ListAdapter mListAdapter;
 
 	/** the list of recent files */
 	protected ArrayList<String> mList;

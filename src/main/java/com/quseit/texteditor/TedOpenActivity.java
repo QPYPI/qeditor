@@ -33,7 +33,7 @@ public class TedOpenActivity extends BrowsingActivity implements
 		// set default result
 		setResult(RESULT_CANCELED, null);
 
-		// show the title as toast
+		// show   the title as toast
 		extras = getIntent().getExtras();
 		if (extras != null)
 			request = extras.getInt(EXTRA_REQUEST_CODE);

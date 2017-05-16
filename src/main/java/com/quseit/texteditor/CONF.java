@@ -1,5 +1,7 @@
 package com.quseit.texteditor;
 
+import android.os.Environment;
+
 public class CONF extends com.quseit.config.CONF{
 	public final static String MUEXT = "#htm#xhtml#php#sh#conf#cfg#ini#py#txt#html#js#htm#kv#log#xml#xslt#yaml#css#less#md#";
 	//public static String  MANUAL_LINK = "http://qpython.org/?qpyplus";
@@ -33,5 +35,5 @@ public class CONF extends com.quseit.config.CONF{
     public final static String DFROM_PRJ2 = "projects";
     public final static String DFROM_PRJ3 = "projects3";
 
-
+    public static final String ABSOLUTE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + BASE_PATH;
 }

@@ -20,10 +20,10 @@ import com.quseit.common.QBaseActivity;
 import com.quseit.util.NAction;
 import com.quseit.util.NUtil;
 
-import greendroid.graphics.drawable.ActionBarDrawable;
-import greendroid.widget.ActionBarItem;
-import greendroid.widget.NormalActionBarItem;
-import greendroid.widget.QuickAction;
+//import greendroid.graphics.drawable.ActionBarDrawable;
+//import greendroid.widget.ActionBarItem;
+//import greendroid.widget.NormalActionBarItem;
+//import greendroid.widget.QuickAction;
 
 //import com.google.android.gms.ads.AdRequest;
 //import com.google.android.gms.ads.AdView;
@@ -36,10 +36,6 @@ public class BaseActivity extends QBaseActivity {
     protected void onDestroy() {
         LinearLayout modBanner = (LinearLayout)findViewById(R.id.modbanner);
 
-//        if (adMob!=null) {
-//            adMob.destroy();
-//        }
-//        
         if (modBanner!=null) {
             modBanner.removeAllViews();
         }
@@ -93,42 +89,42 @@ public class BaseActivity extends QBaseActivity {
 		if (code.startsWith("qpy") || code.startsWith("qlua5")) {
 			if (flag == 5) {
 
-				addActionBarItem(getGDActionBar()
-			        		.newActionBarItem(NormalActionBarItem.class)
-			        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_folder_open_white)), 20);
-
-
-			    addActionBarItem(getGDActionBar()
-			        		.newActionBarItem(NormalActionBarItem.class)
-			        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_note_add_white)), 30);
-
-				addActionBarItem(getGDActionBar()
-						.newActionBarItem(NormalActionBarItem.class)
-						.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
+//				addActionBarItem(getGDActionBar()
+//			        		.newActionBarItem(NormalActionBarItem.class)
+//			        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_folder_open_white)), 20);
+//
+//
+//			    addActionBarItem(getGDActionBar()
+//			        		.newActionBarItem(NormalActionBarItem.class)
+//			        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_note_add_white)), 30);
+//
+//				addActionBarItem(getGDActionBar()
+//						.newActionBarItem(NormalActionBarItem.class)
+//						.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
 
 			} else {
-			    addActionBarItem(getGDActionBar()
-		        		.newActionBarItem(NormalActionBarItem.class)
-		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
+//			    addActionBarItem(getGDActionBar()
+//		        		.newActionBarItem(NormalActionBarItem.class)
+//		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
 			}
 		    
 		} else if (code.contains("qedit")) {
-            addActionBarItem(getGDActionBar()
-                    .newActionBarItem(NormalActionBarItem.class)
-                    .setDrawable(new ActionBarDrawable(this, R.drawable.ic_note_add_white)), 30);
-
-			addActionBarItem(getGDActionBar()
-					.newActionBarItem(NormalActionBarItem.class)
-					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_folder_open_white)), 20);
-
-//			if (flag == 5) {
-//				addActionBarItem(getGDActionBar()
-//		        		.newActionBarItem(NormalActionBarItem.class)
-//		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_save_white)), 25);
-//			}
-			addActionBarItem(getGDActionBar()
-					.newActionBarItem(NormalActionBarItem.class)
-					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_more_vert_white)), 50);
+//            addActionBarItem(getGDActionBar()
+//                    .newActionBarItem(NormalActionBarItem.class)
+//                    .setDrawable(new ActionBarDrawable(this, R.drawable.ic_note_add_white)), 30);
+//
+//			addActionBarItem(getGDActionBar()
+//					.newActionBarItem(NormalActionBarItem.class)
+//					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_folder_open_white)), 20);
+//
+////			if (flag == 5) {
+////				addActionBarItem(getGDActionBar()
+////		        		.newActionBarItem(NormalActionBarItem.class)
+////		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_save_white)), 25);
+////			}
+//			addActionBarItem(getGDActionBar()
+//					.newActionBarItem(NormalActionBarItem.class)
+//					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_more_vert_white)), 50);
 		} else {
 			
 			
@@ -136,23 +132,23 @@ public class BaseActivity extends QBaseActivity {
 	}
 
 	
-	@Override
-    public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
-    	switch (item.getItemId()) {
-			case 40:
-				Intent intent = new Intent(this, TedSettingsActivity.class);
-				startActivity(intent);
-				break;
-    	}
-    	return 	super.onHandleActionBarItemClick(item, position);
-    }
+//	@Override
+//    public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
+//    	switch (item.getItemId()) {
+//			case 40:
+//				Intent intent = new Intent(this, TedSettingsActivity.class);
+//				startActivity(intent);
+//				break;
+//    	}
+//    	return 	super.onHandleActionBarItemClick(item, position);
+//    }
 
-    protected static class MyQuickAction extends QuickAction {
+    protected static class MyQuickAction /*extends QuickAction */{
         protected static final ColorFilter BLACK_CF = new LightingColorFilter(Color.BLACK, Color.BLACK);
         protected static final ColorFilter WHITE_CF = new LightingColorFilter(Color.WHITE, Color.WHITE);
 
         public MyQuickAction(Context ctx, int drawableId, int titleId) {
-            super(ctx, buildDrawable(ctx, drawableId), titleId);
+//            super(ctx, buildDrawable(ctx, drawableId), titleId);
         }
         
         protected static Drawable buildDrawable(Context ctx, int drawableId) {

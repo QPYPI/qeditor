@@ -157,4 +157,8 @@
     <string name="ui_art_licence_title">Artistic Licence</string>
     <string name="ui_art_licence_content">"All icons for this app were created and belong to the author of the app : Xavier Gouchet (android@xgouchet.fr)."</string>
     <string name="ui_whats_new">"What's new"</string>
+    <string name="save">保存</string>
+    <string name="save_as">另存为</string>
+    <string name="recent">最近打开</string>
+    <string name="open">打开</string>
 </resources>

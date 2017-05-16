@@ -1,165 +1,240 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/editor_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-    <com.quseit.texteditor.ui.view.AdvancedEditText
-        android:id="@+id/editor"
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/editor_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="4"
-        android:gravity="top|left"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:scrollbarAlwaysDrawHorizontalTrack="true"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbarSize="5dp"
-        android:scrollbars="horizontal|vertical"
-        android:typeface="monospace" >
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <requestFocus />
-    </com.quseit.texteditor.ui.view.AdvancedEditText>
-    
-	<LinearLayout
-		android:id="@+id/return_bar_box"
-		android:layout_width="fill_parent"
-		android:background="@color/cgrey6"
-		android:layout_height="wrap_content"
-		>			
-		
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:layout_margin="0.0dip"
-		android:src="@drawable/ic_left" 
-		android:background="@null"
-		android:onClick="onLeft"		
-		/>
-		
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:layout_margin="0.0dip"
-		android:src="@drawable/ic_right" 
-		android:background="@null"
-		android:onClick="onRight"		
-		/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            android:background="#FF4A4A4A">
 
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:layout_margin="0.0dip"
-		android:src="@drawable/ic_foword1" 
-		android:background="@null"
-		android:onClick="onGotoLine"		
-		/>
+            <ImageView
+                android:id="@+id/iv_folder_tree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/ic_more_vert_white"/>
 
-		
-		<ImageButton
-		android:id="@+id/handle_save"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:src="@drawable/ic_save_a" 
-		android:background="@null"
-		android:onClick="onSave"		
-		/>
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/iv_folder_tree"
+                android:textColor="#FF4BAC07"
+                android:textSize="18sp"/>
 
-		
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:src="@drawable/ic_search2" 
-		android:background="@null"
-		android:onClick="onSearch"
-		/>
-		
-		<ImageButton
-		android:id="@+id/play_btn"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@drawable/ic_go" 
-		android:padding="5.0dip"
-		android:onClick="onPlay"				
-		android:background="@null"
-		/>
-		
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:layout_margin="0.0dip"
-		android:src="@drawable/ic_undo_2" 
-		android:background="@null"
-		android:onClick="onBack"		
-		/>		
-		
-		<ImageButton
-		    android:id="@+id/save_as"
-		    android:layout_width="0dp"
-		    android:layout_height="wrap_content"
-		    android:layout_weight="1"
-		    android:background="@null"
-		    android:onClick="onSaveAs"
-		    android:padding="5.0dip"
-		    android:src="@drawable/ic_save_as" />
+            <ImageView
+                android:id="@+id/iv_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/ic_more_vert_white"/>
 
-		
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="5.0dip"
-		android:src="@drawable/ic_collections_history" 
-		android:background="@null"
-		android:onClick="onHistory"
-		android:id="@+id/handle_history"
-		
-		/>		
-		
-		<ImageButton
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:id="@+id/snip_button"
-		android:padding="5.0dip"
-		android:src="@drawable/ic_storage" 
-		android:background="@null"
-		android:onClick="onSnippets"
-		/>
-				
+            <ImageView
+                android:id="@+id/iv_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:layout_toLeftOf="@id/iv_setting"
+                android:src="@drawable/ic_add"/>
 
-		<ImageButton
-		    android:id="@+id/help_button"
-		    android:layout_width="0dp"
-		    android:layout_height="wrap_content"
-		    android:layout_weight="1"
-		    android:background="@null"
-		    android:onClick="onMore"
-		    android:padding="5.0dip"
-		    android:src="@drawable/ic_action_overflow_dark" />
-		    
-	</LinearLayout>	
-    <include
-        android:id="@+id/searchLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        layout="@layout/search" />
+            <ImageView
+                android:id="@+id/iv_open"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="16dp"
+                android:layout_toLeftOf="@id/iv_add"
+                android:src="@drawable/ic_editor_open"/>
 
-	<include layout="@layout/hi_ad_mod"/> 
-        
+            <ViewStub
+                android:id="@+id/vs_search_top"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbar_height"
+                android:inflatedId="@+id/ii_search_top"
+                android:layout="@layout/search_top"/>
+        </RelativeLayout>
 
-</LinearLayout>
+        <com.quseit.texteditor.ui.view.AdvancedEditText
+            android:id="@+id/editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:gravity="top|left"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:scrollbarAlwaysDrawHorizontalTrack="true"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbarSize="5dp"
+            android:scrollbars="horizontal|vertical"
+            android:typeface="monospace">
+
+            <requestFocus/>
+        </com.quseit.texteditor.ui.view.AdvancedEditText>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/return_bar_box"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbar_height"
+                android:background="#FFE8E8E8"
+                android:gravity="center_vertical"
+                >
+
+                <ImageButton
+                    android:id="@+id/ib_more"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.0dip"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_more_horiz"
+                    />
+
+                <ImageButton
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.0dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dp"
+                    android:src="@drawable/ic_editor_keyboard"
+                    />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="21dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:background="#FFD5D5D5"/>
+
+                <ImageButton
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.0dip"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editer_arrow_left"
+                    />
+
+
+                <ImageButton
+                    android:id="@+id/handle_save"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_arrow_right"
+                    />
+
+
+                <ImageButton
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_next"
+                    />
+
+                <ImageButton
+                    android:id="@+id/play_btn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00ffffff"
+                    android:clickable="true"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_start"
+                    />
+
+                <ImageButton
+                    android:id="@+id/ib_search"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.0dip"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_search"
+                    />
+
+                <ImageButton
+                    android:id="@+id/save_as"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_undo"/>
+
+
+                <ImageButton
+                    android:id="@+id/handle_history"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_editor_snippet"
+
+                    />
+
+                <!--<ImageButton
+                    android:id="@+id/snip_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:onClick="onSnippets"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_storage"
+                    />
+
+
+                <ImageButton
+                    android:id="@+id/help_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:onClick="onMore"
+                    android:padding="5.0dip"
+                    android:src="@drawable/ic_action_overflow_dark"/>-->
+
+            </LinearLayout>
+
+            <include
+                android:id="@+id/search_bottom"
+                layout="@layout/search"/>
+        </RelativeLayout>
+
+        <ViewStub
+            android:id="@+id/vs_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inflatedId="@+id/ii_save"
+            android:layout="@layout/widget_save"/>
+
+
+        <include layout="@layout/hi_ad_mod"/>
+
+
+    </LinearLayout>
+</layout>

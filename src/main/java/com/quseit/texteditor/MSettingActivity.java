@@ -35,7 +35,7 @@ public class MSettingActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBarContentView(R.layout.m_setting);
+        setContentView(R.layout.m_setting);
         setTitle(R.string.m_title_3);
         //ArrayList<String> av = new ArrayList();
         //String k = av.get(1);

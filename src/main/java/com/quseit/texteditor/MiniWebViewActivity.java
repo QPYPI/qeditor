@@ -20,9 +20,9 @@ import com.quseit.util.NUtil;
 import com.quseit.widget.RightDrawableOnTouchListener;
 import com.quseit.asihttp.AsyncHttpResponseHandler;
 
-import greendroid.widget.ItemAdapter;
-import greendroid.widget.item.ProgressItem;
-import greendroid.widget.item.TextItem;
+//import greendroid.widget.ItemAdapter;
+//import greendroid.widget.item.ProgressItem;
+//import greendroid.widget.item.TextItem;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -66,19 +66,19 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
     protected boolean myload = true;
     protected int exitCount = 0;
 
-    TextItem curTextItem = null;
+//    TextItem curTextItem = null;
 
-    protected ProgressItem progressItem = new ProgressItem("", true);
+//    protected ProgressItem progressItem = new ProgressItem("", true);
 
     
-	private ItemAdapter adapter;
+//	private ItemAdapter adapter;
 	
     @SuppressWarnings("deprecation")
 	@TargetApi(3)
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBarContentView(R.layout.m_miniwebview);
+        setContentView(R.layout.m_miniwebview);
         setTitle(R.string.info_browser);
         //initWidgetTabItem(10);
 
@@ -88,8 +88,8 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
     	listView.setDivider(new ColorDrawable(getResources().getColor(R.color.cgrey6)));
     	listView.setDividerHeight(1);
     	listView.setCacheColorHint(0);
-        adapter = new ItemAdapter(this);
-        listView.setAdapter(adapter);
+//        adapter = new ItemAdapter(this);
+//        listView.setAdapter(adapter);
         
         //LinearLayout sb = (LinearLayout)findViewById(R.id.setting_box);
         //sb.setVisibility(View.GONE);
@@ -351,15 +351,15 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
         //download(dTitle, dLink, dArtist, dAlbum, dPlay, dOrgLink, dQuality, dCompletedSize, dIsNew, dExt);
     }
     
-    @Override
-    public int createLayout() {
-        return R.layout.gd_content_normal;
-    }
+//    @Override
+//    public int createLayout() {
+//        return R.layout.gd_content_normal;
+//    }
     
-    @Override
-	public void onConfigurationChanged(Configuration newConfig) {
-    	super.onConfigurationChanged(newConfig);
-    }
+//    @Override
+//	public void onConfigurationChanged(Configuration newConfig) {
+//    	super.onConfigurationChanged(newConfig);
+//    }
     /**
      * Start the WebView
      */
@@ -367,7 +367,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
     	initWebView();//执行初始化函数
         MyBean bean = new MyBean(this);
         bean.setTitle("MILIB");
-        wv.addJavascriptInterface(bean, "milib");
+//        wv.addJavascriptInterface(bean, "milib");
         wv.setOnTouchListener(this);
         wv.requestFocus();
 

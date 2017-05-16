@@ -2,6 +2,7 @@
 <resources>
   <color name="topbar">#1f1f1f</color>
   <color name="contentbg">#05a494</color>
+  <color name="divide_line">#FFE4E4E4</color>
   <color name="text">#888</color>  
   <color name="link">#FF0066CC</color>  
   <color name="hint">#535252</color>

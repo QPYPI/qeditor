@@ -1,13 +1,14 @@
 package com.quseit.texteditor;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 
 import com.quseit.common.CrashHandler;
 
-import greendroid.app.GDApplication;
+//import greendroid.app.GDApplication;
 
-public class MNApp extends GDApplication {
+public class MNApp extends Application {
 
 	//Map<String, Integer> movieDirs = null;
 
@@ -32,17 +33,17 @@ public class MNApp extends GDApplication {
 //    	}
         //tracker.startNewSession(gtid, xq, getApplicationContext());
     }  
-    @Override
-    public Class<?> getHomeActivityClass() {
-        return TedActivity.class;
-    }
-    
-    @Override
-    public Intent getMainApplicationIntent() {
-    	return null;
-
-        //return new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_url)));
-    }
+//    @Override
+//    public Class<?> getHomeActivityClass() {
+//        return TedActivity.class;
+//    }
+//
+//    @Override
+//    public Intent getMainApplicationIntent() {
+//    	return null;
+//
+//        //return new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_url)));
+//    }
 //
 //    public void trackPageView(String page) {
 //    	if (tracker!=null) {

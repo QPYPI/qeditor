@@ -1,47 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:background="@color/cgrey6"
-    android:paddingTop="5dp"
-    android:visibility="gone">
+<layout>
 
-    <ImageButton
-        android:id="@+id/buttonSearchClose"
-        style="@style/ButtonSmall"
-        android:background="@drawable/silver_button" 
-        android:layout_marginBottom="2.0dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_remove" />
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/rl_search_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/search_bottom"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:visibility="gone">
 
-    <EditText
-        android:id="@+id/textSearch"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:drawableLeft="@drawable/ic_search"
-        android:drawablePadding="8dp"
-        android:hint="@string/ui_hint_search"
-        android:inputType="text" />
+        <ImageButton
+            android:id="@+id/buttonSearchPrev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/transparent"
+            android:padding="5dp"
+            android:src="@drawable/ic_editor_arrow_left"/>
 
-    <ImageButton
-        android:id="@+id/buttonSearchPrev"
-        style="@style/ButtonSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/silver_button"
-        android:layout_marginBottom="2.0dip"
-        android:src="@drawable/ic_left" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_editor_search"/>
 
-    <ImageButton
-        android:id="@+id/buttonSearchNext"
-        style="@style/ButtonSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/silver_button"
-        android:layout_marginBottom="2.0dip"
-        android:src="@drawable/ic_right" />
 
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/buttonSearchNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@color/transparency"
+            android:padding="5dp"
+            android:src="@drawable/ic_editor_arrow_right"/>
+
+    </RelativeLayout>
+</layout>
