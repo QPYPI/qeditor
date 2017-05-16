@@ -75,7 +75,7 @@ public class OAboutActivity extends BaseActivity {
 				
 			}  else {
 				NAction.recordAdLog(getApplicationContext(), "feedback", "");
-				Intent intent = NAction.openRemoteLink(this, conf[6]);
+				Intent intent = NAction.getLinkAsIntent(this, conf[6]);
 				this.startActivity(intent);	
 			}
 		/*} else {

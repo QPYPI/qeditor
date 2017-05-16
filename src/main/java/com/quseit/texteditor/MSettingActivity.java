@@ -161,7 +161,7 @@ public class MSettingActivity extends BaseActivity {
 			adSlid.setOnUrlBackCall(new urlBackcall() {
 				@Override
 				public void onUrlBackCall(int i) {
-					Intent intent = NAction.openRemoteLink(
+					Intent intent = NAction.getLinkAsIntent(
 							getApplicationContext(), ltImgLink.get(i));
 					startActivity(intent);
 				}
@@ -178,17 +178,17 @@ public class MSettingActivity extends BaseActivity {
     	if (confProLink.equals("")) {
     		confProLink = "market://details?id=com.quseit.texteditorpro";
     	}
-    	Intent intent = NAction.openRemoteLink(this, confProLink);
+    	Intent intent = NAction.getLinkAsIntent(this, confProLink);
     	startActivity(intent);
     }
 
     public void onADFree(View v) {
         String adfreeUrl = NAction.getExtP(getApplicationContext(), "conf_no_ad_pkg_url");
         try {
-			Intent intent = NAction.openRemoteLink(this, adfreeUrl);
+			Intent intent = NAction.getLinkAsIntent(this, adfreeUrl);
 			startActivity(intent);
         } catch (Exception e) {
-    		Intent intent = NAction.openRemoteLink(this, "http://play.tubebook.net/adfree-tubeboook-app.html");
+    		Intent intent = NAction.getLinkAsIntent(this, "http://play.tubebook.net/adfree-tubeboook-app.html");
     		startActivity(intent);
         }
     }
@@ -342,69 +342,9 @@ public class MSettingActivity extends BaseActivity {
     }
     
 	public void setProxyPort(View v) {
-		/*final TextView port = (TextView)findViewById(R.id.proxy_port_value);
-		String portVal = port.getText().toString();
-		WBase.setTxtDialogParam(0, R.string.proxy_port, portVal,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-				        AlertDialog ad = (AlertDialog) dialog;  
-				        EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
-				        String content = t.getText().toString();
-				        if (content!=null && !content.equals("")) {
-					        if (NUtil.isInt(content)) {
-						        NAction.setProxyPort(getApplicationContext(), content);
-								port.setText(content);
-					        } else {
-					        	Toast.makeText(getApplicationContext(), R.string.err_need_int, Toast.LENGTH_SHORT).show();
-					        }
-				        } else {
-					        NAction.setProxyPort(getApplicationContext(), "");
-							port.setText("");
-				        }
-					}
-				},null);
-		showDialog(DialogBase.DIALOG_TEXT_ENTRY+2);*/
 	}
-
-	/*public void setProxyUsername(View v) {
-		final TextView username = (TextView)findViewById(R.id.proxy_username_value);
-		String usernameVal = username.getText().toString();
-		WBase.setTxtDialogParam(R.drawable.ic_setting, R.string.proxy_port, usernameVal,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-				        AlertDialog ad = (AlertDialog) dialog;  
-				        EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
-				        String content = t.getText().toString();
-				        NAction.setProxyUsername(getApplicationContext(), content);
-						username.setText(content);
-					}
-				},null);
-		showDialog(DialogBase.DIALOG_TEXT_ENTRY+3);
-	}
-	
-	public void setProxyPwd(View v) {
-		final TextView pwd = (TextView)findViewById(R.id.proxy_pwd_value);
-		String pwdVal = pwd.getText().toString();
-		WBase.setTxtDialogParam(R.drawable.ic_setting, R.string.proxy_port, pwdVal,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-				        AlertDialog ad = (AlertDialog) dialog;  
-				        EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
-				        String content = t.getText().toString();
-				        NAction.setProxyPwd(getApplicationContext(), content);
-						pwd.setText(content);
-					}
-				},null);
-		showDialog(DialogBase.DIALOG_TEXT_ENTRY+4);
-	}*/
-	
 
 	public void onRate(View v){
-		//Log.d(TAG, "exit1");
-		//String rateUrl = NAction.getInstallLink(getApplicationContext());
 		String rateUrl = NAction.getExtP(this, "conf_rate_url");
 		if (rateUrl.equals("")) {
 			rateUrl = "http://play.tubebook.net/";
