@@ -23,6 +23,6 @@ android {
 
 dependencies {
     compile project(':qbaselib')
-    compile project(':qconsole')
+//    compile project(':qconsole')
     compile files('libs/markdown4j.jar')
 }
