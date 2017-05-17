@@ -1,60 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
 
-    <LinearLayout
+    <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/gd_action_bar_host"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/toolbar"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:id="@+id/my_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbar_height">
+        <LinearLayout
+            android:id="@+id/gd_action_bar_host"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/toolbar"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/toolbar_title"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/my_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbar_height">
+
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/open"
+                    android:textColor="#FFF"
+                    android:textSize="18sp"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbar_height"
+                android:background="#FF363636">
+
+                <TextView
+                    android:id="@+id/tv_path"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/default_margin"
+                    android:textColor="#FF9B9B9B"/>
+
+                <ImageView
+                    android:id="@+id/iv_new_folder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/default_margin"
+                    android:src="@drawable/ic_editor_newfolder"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+
+            <ListView
+                android:id="@+id/lv_folders"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/open"
-                android:textColor="#FFF"
-                android:textSize="18sp"/>
+                android:layout_marginTop="1dp"/>
 
-        </RelativeLayout>
+        </LinearLayout>
 
-        <RelativeLayout
+        <ViewStub
+            android:id="@+id/vs_save"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbar_height"
-            android:background="#FF363636">
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout="@layout/view_stub_save_prompt"/>
 
-            <TextView
-                android:id="@+id/tv_path"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/default_margin"
-                android:textColor="#FF9B9B9B"/>
-
-            <ImageView
-                android:id="@+id/iv_new_folder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="@dimen/default_margin"
-                android:src="@drawable/ic_editor_newfolder"
-                android:visibility="gone"/>
-
-        </RelativeLayout>
-
-        <ListView
-            android:id="@+id/lv_folders"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="1dp"/>
-    </LinearLayout>
+    </RelativeLayout>
 </layout>

@@ -20,7 +20,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:src="@drawable/ic_more_vert_white"/>
+                android:src="@drawable/ic_back"/>
 
             <TextView
                 android:id="@+id/tv_title"
@@ -111,6 +111,7 @@
                     android:layout_margin="0.0dp"
                     android:layout_weight="1"
                     android:background="@null"
+                    android:visibility="gone"
                     android:padding="5.0dp"
                     android:src="@drawable/ic_editor_keyboard"
                     />
@@ -123,6 +124,7 @@
                     android:background="#FFD5D5D5"/>
 
                 <ImageButton
+                    android:id="@+id/ib_left_indent"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="0.0dip"
@@ -134,7 +136,7 @@
 
 
                 <ImageButton
-                    android:id="@+id/handle_save"
+                    android:id="@+id/ib_right_indent"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -145,6 +147,7 @@
 
 
                 <ImageButton
+                    android:id="@+id/ib_jump_to"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

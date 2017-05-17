@@ -54,7 +54,7 @@ public class PathListAdapter extends BaseAdapter {
         holder.getName().setText(getItem(position).getName());
         switch (getItem(position).getType()) {
             case FILE:
-                holder.getIcon().setImageResource(R.drawable.ic_editor_pyfile);
+                holder.getIcon().setImageResource(R.drawable.ic_editor_file);
                 break;
             case FOLDER:
                 holder.getIcon().setImageResource(R.drawable.ic_editor_folder);

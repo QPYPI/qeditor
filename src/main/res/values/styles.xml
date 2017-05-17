@@ -28,4 +28,12 @@
         <item name="android:padding">6dp</item>
     </style>
 
+    <style name="green_btn">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:background">@drawable/green_btn_bg</item>
+        <item name="android:textColor">#FFF</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
 </resources>

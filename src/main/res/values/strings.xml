@@ -161,4 +161,6 @@
     <string name="save_as">另存为</string>
     <string name="recent">最近打开</string>
     <string name="open">打开</string>
+    <string name="file_name">File Name</string>
+    <string name="file_exist_hint">This file is exist, please rename.</string>
 </resources>

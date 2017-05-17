@@ -3,18 +3,21 @@ package com.quseit.texteditor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.quseit.texteditor.common.CommonEnums;
 import com.quseit.texteditor.common.Constants;
 import com.quseit.texteditor.databinding.ActivityLocalBinding;
+import com.quseit.texteditor.databinding.ViewStubSavePromptBinding;
 import com.quseit.texteditor.ui.adapter.PathListAdapter;
 import com.quseit.texteditor.ui.adapter.bean.FolderBean;
 import com.quseit.util.FileHelper;
@@ -30,11 +33,13 @@ import static com.quseit.texteditor.FolderUtil.sortTypeByName;
 
 public class TedLocalActivity extends Activity implements Constants {
     private static final String TAG = "local";
-    private ActivityLocalBinding binding;
-    private Stack<String>        curArtistDir;
-    private Stack<String>        prevDir;
-    private List<FolderBean>     folderList;
-    private PathListAdapter      adapter;
+    private ActivityLocalBinding      binding;
+    private ViewStubSavePromptBinding saveBinding;
+
+    private Stack<String>    curArtistDir;
+    private Stack<String>    prevDir;
+    private List<FolderBean> folderList;
+    private PathListAdapter  adapter;
 
     private int request;
     private int _GLOBAL_DEPTH = 0;
@@ -47,7 +52,7 @@ public class TedLocalActivity extends Activity implements Constants {
         initView();
         initField();
         initWidgetTabItem();
-
+        initListener();
         switch (request) {
             case REQUEST_RECENT:
                 binding.toolbarTitle.setText(R.string.recent);
@@ -58,12 +63,20 @@ public class TedLocalActivity extends Activity implements Constants {
             case REQUEST_SAVE_AS:
                 binding.toolbarTitle.setText(R.string.save_as);
                 binding.ivNewFolder.setVisibility(View.VISIBLE);
+                saveBinding = DataBindingUtil.bind(binding.vsSave.getViewStub().inflate());
+                initSaveListener();
                 break;
             case REQUEST_HOME_PAGE:
                 break;
         }
         myloadContent("", -1);
 
+    }
+
+    @Override
+    public void onResume() {
+//        myloadContent("", -1);
+        super.onResume();
     }
 
     private void initView() {
@@ -104,10 +117,9 @@ public class TedLocalActivity extends Activity implements Constants {
 
     }
 
-    @Override
-    public void onResume() {
-        myloadContent("", -1);
-        super.onResume();
+    public static void start(Context context) {
+        Intent starter = new Intent(context, TedLocalActivity.class);
+        context.startActivity(starter);
     }
 
     public void onNotify(View v) {
@@ -192,7 +204,6 @@ public class TedLocalActivity extends Activity implements Constants {
 //	    	adapter.notifyDataSetChanged();
 
         } else {
-
             if (dirname != null && !dirname.equals("")) {
                 curArtistDir.push(curArtistDir.peek() + "/" + dirname);
             }
@@ -204,12 +215,10 @@ public class TedLocalActivity extends Activity implements Constants {
                 try {
                     File[] files = FileHelper.getABSPath(curDir).listFiles();
                     if (files != null) {
-                        String fileName, filePath;
                         Arrays.sort(files, sortTypeByName);
+                        folderList.clear();
                         for (File file : files) {
-                            filePath = file.getAbsolutePath();
-                            fileName = file.getName();
-                            folderList.add(new FolderBean(file.isDirectory() ? CommonEnums.FileType.FOLDER : CommonEnums.FileType.FILE, fileName, filePath));
+                            folderList.add(new FolderBean(file));
                         }
                         adapter.notifyDataSetChanged();
                     }
@@ -406,25 +415,16 @@ public class TedLocalActivity extends Activity implements Constants {
     }
 
     @SuppressWarnings("deprecation")
-    public void doSave(View v) {
-        EditText fname = (EditText) findViewById(R.id.search_input);
-        String fn = fname.getText().toString();
+    public void doSave(String fn) {
         if (fn.length() == 0) {
             Toast.makeText(getApplicationContext(), R.string.toast_filename_empty, Toast.LENGTH_SHORT).show();
         } else {
             String filename = curArtistDir.peek() + "/" + fn;
             final File f = new File(filename);
             if (f.exists()) {
-//			WBase.setTxtDialogParam(R.drawable.alert_dialog_icon, R.string.confirm_save, new DialogInterface.OnClickListener() {
-//				@Override
-//				public void onClick(DialogInterface dialog, int which) {
-//					setSaveResult(f.getAbsolutePath().toString());
-//				}
-//				});
-//				showDialog(DialogBase.DIALOG_YES_NO_MESSAGE+dialogIndex);
-//				dialogIndex++;
+                Toast.makeText(this, R.string.file_exist_hint, Toast.LENGTH_SHORT).show();
             } else {
-                setSaveResult(f.getAbsolutePath().toString());
+                setSaveResult(f.getAbsolutePath());
             }
         }
     }
@@ -556,6 +556,28 @@ public class TedLocalActivity extends Activity implements Constants {
 //        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_keyboard_arrow_right_white)), 51);
     }
 
+    private void initListener() {
+        binding.lvFolders.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                FolderBean item = folderList.get(position);
+                if (item.getType().equals(CommonEnums.FileType.FILE)) {
+                    TedActivity.start(TedLocalActivity.this, Intent.ACTION_EDIT, Uri.fromFile(item.getFile()));
+                } else {
+                    myloadContent(item.getName(), -1);
+                }
+            }
+        });
+    }
+
+    private void initSaveListener() {
+        saveBinding.btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doSave(saveBinding.etName.getText().toString());
+            }
+        });
+    }
 
     //	@Override
     public boolean onHandleActionBarItemClick(/*ActionBarItem item,*/ int position) {
