@@ -1,12 +1,12 @@
 <resources>
 
-<style name="Presage.Theme.Transparent" parent="android:Theme">
-    <item name="android:windowIsTranslucent">true</item>
-    <item name="android:windowBackground">@android:color/transparent</item>
-    <item name="android:windowContentOverlay">@null</item>
-    <item name="android:windowNoTitle">true</item>
-    <item name="android:backgroundDimEnabled">false</item>
-</style>
+    <style name="Presage.Theme.Transparent" parent="android:Theme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 
     <style name="TextTitle">
         <item name="android:paddingTop">14dp</item>
@@ -36,4 +36,13 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="dialog_item">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:padding">14dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#FF4A4A4A</item>
+        <item name="android:textColor">#FFF</item>
+    </style>
 </resources>

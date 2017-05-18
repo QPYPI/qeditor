@@ -9,12 +9,13 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/rl_top"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_height"
             android:background="#FF4A4A4A">
 
             <ImageView
-                android:id="@+id/iv_folder_tree"
+                android:id="@+id/iv_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
@@ -27,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/iv_folder_tree"
+                android:layout_toRightOf="@id/iv_back"
                 android:textColor="#FF4BAC07"
                 android:textSize="18sp"/>
 

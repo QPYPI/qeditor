@@ -18,6 +18,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
@@ -71,6 +72,8 @@ import com.quseit.texteditor.common.TextFileUtils;
 import com.quseit.texteditor.databinding.LayoutEditorBinding;
 import com.quseit.texteditor.databinding.SearchTopBinding;
 import com.quseit.texteditor.databinding.WidgetSaveBinding;
+import com.quseit.texteditor.ui.view.EnterDialog;
+import com.quseit.texteditor.ui.view.NewEditorPopUp;
 import com.quseit.texteditor.undo.TextChangeWatcher;
 import com.quseit.base.MyApp;
 import com.quseit.util.NAction;
@@ -81,7 +84,10 @@ import com.quseit.util.NStorage;
  */
 
 public class TedActivity extends Activity implements Constants, TextWatcher, OnClickListener {
-    public static final String TAG = "TED";
+    public static final  String TAG             = "TED";
+    private static final String WEB_PROJECT     = "web";
+    private static final String CONSOLE_PROJECT = "console";
+    private static final String KIVY_PROJECT    = "kivy";
 
     private LayoutEditorBinding binding;
     private WidgetSaveBinding   widgetSaveBinding;
@@ -89,6 +95,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
     protected String mCurrentFilePath;
     protected String mCurrentFileName;
+
+    private NewEditorPopUp editorPopUp;
 
     /**
      * the runnable to run after a save
@@ -127,14 +135,14 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         MyApp.getInstance().addActivity(this, CONF.BASE_PATH, "");
 
         binding = DataBindingUtil.setContentView(this, R.layout.layout_editor);
-        switch (getIntent().getExtras().getInt(EXTRA_REQUEST_CODE)) {
-            case REQUEST_PROJECT:
-                break;
-            case REQUEST_FILE:
-            default:
-                binding.ivFolderTree.setImageResource(R.drawable.ic_back);
-                break;
-        }
+//        switch (getIntent().getExtras().getInt(EXTRA_REQUEST_CODE)) {
+//            case REQUEST_PROJECT:
+//                break;
+//            case REQUEST_FILE:
+//            default:
+//                binding.ivFolderTree.setImageResource(R.drawable.ic_back);
+//                break;
+//        }
         initData();
         initListener();
         initFiles();
@@ -229,7 +237,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = displayMetrics.widthPixels;
-        anim = ViewAnimationUtils.createCircularReveal(widgetSaveBinding.getRoot(), width, 0, 0, width);
+        anim = ViewAnimationUtils.createCircularReveal(searchTopBinding.getRoot(), width, 0, 0, width);
         anim.start();
     }
 
@@ -262,6 +270,53 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     private void initListener() {
+        binding.ivBack.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishEdit();
+            }
+        });
+        binding.ivOpen.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TedLocalActivity.start(TedActivity.this);
+            }
+        });
+        binding.ivAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editorPopUp == null) {
+                    editorPopUp = new NewEditorPopUp(TedActivity.this);
+                    editorPopUp.initListener(new NewEditorPopUp.AddClick() {
+                        @Override
+                        public void blankFile() {
+                            newContent();
+                        }
+
+                        @Override
+                        public void newScript() {
+
+                        }
+
+                        @Override
+                        public void webApp() {
+                            newProject(WEB_PROJECT);
+                        }
+
+                        @Override
+                        public void consoleApp() {
+                            newProject(CONSOLE_PROJECT);
+                        }
+
+                        @Override
+                        public void kivyApp() {
+                            newProject(KIVY_PROJECT);
+                        }
+                    });
+                }
+                editorPopUp.show(binding.rlTop);
+            }
+        });
         binding.ibMore.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -328,12 +383,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 searchTopBinding.llSearch.setVisibility(View.VISIBLE);
             }
         });
-        binding.ivOpen.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TedLocalActivity.start(TedActivity.this);
-            }
-        });
     }
 
     private void initSaveWidgetListener() {
@@ -373,25 +422,25 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             String file2 = LoadDataFromAssets("The_MIT_License");
             writeToFile(path + "/The_MIT_License", file2);
         }
-        if (code.startsWith("qpy")) {
-            f = new File(path + "/QPy_WebApp");
-            if (!f.exists()) {
-                String file2 = LoadDataFromAssets("QPy_WebApp");
-                writeToFile(path + "/QPy_WebApp", file2);
-            }
-
-            f = new File(path + "/QPy_KivyApp");
-            if (!f.exists()) {
-                String file2 = LoadDataFromAssets("QPy_KivyApp");
-                writeToFile(path + "/QPy_KivyApp", file2);
-            }
-
-            f = new File(path + "/QPy_ConsoleApp");
-            if (!f.exists()) {
-                String file2 = LoadDataFromAssets("QPy_ConsoleApp");
-                writeToFile(path + "/QPy_ConsoleApp", file2);
-            }
+//        if (code.startsWith("qpy")) {
+        f = new File(path + "/QPy_WebApp");
+        if (!f.exists()) {
+            String file2 = LoadDataFromAssets("QPy_WebApp");
+            writeToFile(path + "/QPy_WebApp", file2);
         }
+
+        f = new File(path + "/QPy_KivyApp");
+        if (!f.exists()) {
+            String file2 = LoadDataFromAssets("QPy_KivyApp");
+            writeToFile(path + "/QPy_KivyApp", file2);
+        }
+
+        f = new File(path + "/QPy_ConsoleApp");
+        if (!f.exists()) {
+            String file2 = LoadDataFromAssets("QPy_ConsoleApp");
+            writeToFile(path + "/QPy_ConsoleApp", file2);
+        }
+//        }
         String lastFile = NStorage.getSP(this, "qedit.last_filename");
         if (!lastFile.equals("")) {
             File f2 = new File(lastFile);
@@ -460,14 +509,40 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         builder.show();
     }
 
+
+//    if (seq == 2) {
+//                                                insertSnippet("QPy_WebApp");
+//
+//                                            } else if (seq == 3) {
+//                                                insertSnippet("QPy_ConsoleApp");
+//
+//                                            } else {
+//                                                insertSnippet("QPy_KivyApp");
+
+
+    /**
+     * @param snippetName WEB_PROJECT/CONSOLE_PROJECT/KIVY_PROJECT
+     */
     public void insertSnippet(String snippetName) throws IOException {
         String code = NAction.getCode(this);
-        String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString()
+        String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath()
                 + "/" + CONF.BASE_PATH;
         String path = baseDir + (code.contains("3") ? "/snippets3/" : "/snippets/");
-        int start = binding.editor.getSelectionStart(); // this is to get the the cursor position
-        // String s = readFile(path+snippetName);
-        // binding.editor.getText().insert(start, s);
+        String s;
+        switch (snippetName) {
+            case WEB_PROJECT:
+                s = readFile(path + "QPy_WebApp");
+                break;
+            case CONSOLE_PROJECT:
+                s = readFile(path + "QPy_ConsoleApp");
+                break;
+            case KIVY_PROJECT:
+                s = readFile(path + "QPy_KivyApp");
+                break;
+            default:
+                s = readFile(path + "QPy_WebApp");
+        }
+        binding.editor.getText().insert(0, s);
         // int start = binding.editor.getSelectionStart(); //this is to get the the cursor position
 
 		/*
@@ -479,42 +554,42 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 		 * "?template=" the WebView closes and the URL content is decoded and the template content is inserted into the
 		 * EditText.
 		 */
-        if (snippetName.endsWith(".qpy.html")) {
-            LayoutInflater inflater = getLayoutInflater();
-            View dialoglayout = inflater.inflate(R.layout.template_webview, (ViewGroup) getCurrentFocus());
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setView(dialoglayout);
-            builder.show();
-            final AlertDialog optionDialog = builder.create();
-            WebView lWebView = (WebView) dialoglayout.findViewById(R.id.template_webview);
-            lWebView.getSettings().setJavaScriptEnabled(true);
-            lWebView.loadUrl("file://" + path); /* Load the template into the WebView */
-            lWebView.setWebViewClient(new WebViewClient() {
-                @Override
-                // Listen for URL change
-                public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
-                    if (url.contains("?template=")) {
-                        optionDialog.dismiss(); /* close the popup dialog */
-                        Uri uri = Uri.parse(url);
-                        final String encoded_template_data = uri.getQueryParameter("template");
-                        String result;
-                        try {
-                            // Decode the template data
-                            result = URLDecoder.decode(encoded_template_data, "UTF-8");
-                            // Insert the result into the EditText
-                            binding.editor.setText(result);
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return null;
-                }
-            });
-
-        } else {
-            String s = readFile(path + snippetName);
-            binding.editor.getText().insert(0, s);
-        }
+//        if (snippetName.endsWith(".qpy.html")) {
+//            LayoutInflater inflater = getLayoutInflater();
+//            View dialoglayout = inflater.inflate(R.layout.template_webview, (ViewGroup) getCurrentFocus());
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setView(dialoglayout);
+//            builder.show();
+//            final AlertDialog optionDialog = builder.create();
+//            WebView lWebView = (WebView) dialoglayout.findViewById(R.id.template_webview);
+//            lWebView.getSettings().setJavaScriptEnabled(true);
+//            lWebView.loadUrl("file://" + path); /* Load the template into the WebView */
+//            lWebView.setWebViewClient(new WebViewClient() {
+//                @Override
+//                // Listen for URL change
+//                public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
+//                    if (url.contains("?template=")) {
+//                        optionDialog.dismiss(); /* close the popup dialog */
+//                        Uri uri = Uri.parse(url);
+//                        final String encoded_template_data = uri.getQueryParameter("template");
+//                        String result;
+//                        try {
+//                            // Decode the template data
+//                            result = URLDecoder.decode(encoded_template_data, "UTF-8");
+//                            // Insert the result into the EditText
+//                            binding.editor.setText(result);
+//                        } catch (UnsupportedEncodingException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    return null;
+//                }
+//            });
+//
+//        } else {
+//            String s = readFile(path + snippetName);
+//            binding.editor.getText().insert(0, s);
+//        }
     }
 
     /**
@@ -1373,186 +1448,49 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     *
+     * @param type WEB_PROJECT/CONSOLE_PROJECT/KIVY_PROJECT
      */
-    protected void newProject() {
+    protected void newProject(final String type) {
+        NStorage.setSP(getApplicationContext(), "qedit.last_filename", "");
+        new EnterDialog(TedActivity.this)
+                .setTitle(getString(R.string.new_project))
+                .setConfirmListener(new EnterDialog.ClickListener() {
+                    @Override
+                    public boolean OnClickListener(String name) {
+                        Stack<String> curArtistDir = new Stack<>();
+                        final boolean isQpy3 = NAction.isQPy3(getApplicationContext());
 
-        final CharSequence items[] = getResources().getStringArray(R.array.files_new);
+                        curArtistDir.push(Environment.getExternalStorageDirectory() + "/" + CONF.BASE_PATH
+                                + "/" + (isQpy3 ? CONF.DFROM_QPY3 : CONF.DFROM_QPY2));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.info_project_type);
+                        File fileN = new File(curArtistDir.peek(), name);
+                        if (fileN.exists()) {
+                            Toast.makeText(getApplicationContext(), R.string.file_exists, Toast.LENGTH_SHORT)
+                                    .show();
+                            return false;
+                        } else {
+                            try {
+                                newContent();
 
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Toast.makeText(getApplicationContext(), colors[which],
-                // Toast.LENGTH_SHORT).show();
-                newProject1(which);
-            }
-        });
-        builder.show();
-    }
+                                fileN.createNewFile();
+                                mCurrentFilePath = fileN.getAbsolutePath();
 
-    protected void newProject1(final int seq) {
-        Log.d(TAG, "newProject");
-        if (seq == 0) {
-            newContent();
-            NStorage.setSP(getApplicationContext(), "qedit.last_filename", "");
-            Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
+                                doOpenFile(fileN, false);
+                                insertSnippet(type);
+                                saveContent();
+                            } catch (IOException e) {
+                                Toast.makeText(TedActivity.this, R.string.error_dont_kn, Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
+                                return false;
+                            }
+                            Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT)
+                                    .show();
+                            return true;
+                        }
+                    }
+                })
+                .show();
 
-        } else if (seq == 1) {
-
-            // NStorage.setSP(getApplicationContext(), "qedit.last_filename", "");
-
-//            WBase.setTxtDialogParam(R.drawable.ic_new_b, R.string.file_new, "", "", "Script file name",
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            AlertDialog ad = (AlertDialog) dialog;
-//                            EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
-//                            String content = t.getText().toString().trim();
-//                            if (content.equals("")) {
-//                                newProject1(seq);
-//                                Toast.makeText(getApplicationContext(), R.string.script_name_cannot_empty,
-//                                        Toast.LENGTH_SHORT).show();
-//
-//                            } else if (!content.endsWith(".py")) {
-//                                newProject1(seq);
-//                                Toast.makeText(getApplicationContext(), R.string.script_name_should_be_py_ext,
-//                                        Toast.LENGTH_SHORT).show();
-//
-//                            } else {
-//
-//                                Stack<String> curArtistDir = new Stack<String>();
-//                                final boolean isQpy3 = NAction.isQPy3(getApplicationContext());
-//
-//                                curArtistDir.push(Environment.getExternalStorageDirectory() + "/" + CONF.BASE_PATH
-//                                        + "/" + (isQpy3 ? CONF.DFROM_QPY3 : CONF.DFROM_QPY2));
-//
-//                                File fileN = new File(curArtistDir.peek(), content);
-//                                if (fileN.exists()) {
-//                                    newProject1(seq);
-//
-//                                    Toast.makeText(getApplicationContext(), R.string.file_exists, Toast.LENGTH_SHORT)
-//                                            .show();
-//                                } else {
-//                                    try {
-//                                        newContent();
-//
-//                                        fileN.createNewFile();
-//                                        mCurrentFilePath = fileN.getAbsolutePath();
-//
-//                                        doOpenFile(fileN, false);
-//                                        insertSnippet("QPy_ConsoleApp");
-//                                        saveContent();
-//
-//                                        WBase.setTxtDialogParam(R.drawable.ic_new_b, MessageFormat.format(
-//                                                getString(R.string.project_has_been_created), fileN.toString()),
-//                                                new android.content.DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface arg0, int arg1) {
-//                                                    }
-//                                                });
-//                                        showDialog(DialogBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
-//                                        dialogIndex++;
-//
-//                                    } catch (IOException e) {
-//                                        // TODO Auto-generated catch block
-//                                        e.printStackTrace();
-//                                    }
-//                                    Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT)
-//                                            .show();
-//
-//                                }
-//                            }
-//                            //
-//                        }
-//                    }, null);
-//            showDialog(DialogBase.DIALOG_TEXT_ENTRY + dialogIndex);
-//            dialogIndex++;
-
-            // Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
-
-        } else {
-
-            // final TextView media = (TextView)findViewById(R.id.plugin_mediacenter_value);
-            // String mediaVal = media.getText().toString();
-//            WBase.setTxtDialogParam(R.drawable.ic_new_b, R.string.project_new, "", "", "Project Name",
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            AlertDialog ad = (AlertDialog) dialog;
-//                            EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
-//                            String content = t.getText().toString().trim();
-//                            if (content.equals("")) {
-//                                newProject1(seq);
-//                                Toast.makeText(getApplicationContext(), R.string.project_name_cannot_empty,
-//                                        Toast.LENGTH_SHORT).show();
-//                            } else {
-//
-//                                Stack<String> curArtistDir = new Stack<String>();
-//                                final boolean isQpy3 = NAction.isQPy3(getApplicationContext());
-//
-//                                curArtistDir.push(Environment.getExternalStorageDirectory() + "/" + CONF.BASE_PATH
-//                                        + "/" + (isQpy3 ? CONF.DFROM_PRJ3 : CONF.DFROM_PRJ2));
-//
-//                                File dirN = new File(curArtistDir.peek(), content);
-//                                if (dirN.exists()) {
-//                                    newProject();
-//
-//                                    Toast.makeText(getApplicationContext(), R.string.dir_exists, Toast.LENGTH_SHORT)
-//                                            .show();
-//                                } else {
-//                                    dirN.mkdir();
-//                                    File pf = new File(dirN, "main.py");
-//                                    mCurrentFilePath = pf.getAbsolutePath();
-//
-//                                    try {
-//                                        pf.createNewFile();
-//                                        doOpenFile(pf, false);
-//                                        try {
-//                                            if (seq == 2) {
-//                                                insertSnippet("QPy_WebApp");
-//
-//                                            } else if (seq == 3) {
-//                                                insertSnippet("QPy_ConsoleApp");
-//
-//                                            } else {
-//                                                insertSnippet("QPy_KivyApp");
-//
-//                                            }
-//                                            saveContent();
-//                                        } catch (IOException e) {
-//                                            // TODO Auto-generated catch block
-//                                            e.printStackTrace();
-//                                        }
-//                                        WBase.setTxtDialogParam(
-//                                                R.drawable.ic_new_b,
-//                                                MessageFormat.format(getString(R.string.project_has_been_created),
-//                                                        pf.toString()),
-//                                                new android.content.DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface arg0, int arg1) {
-//                                                    }
-//                                                });
-//                                        showDialog(DialogBase.DIALOG_NOTIFY_MESSAGE + dialogIndex);
-//                                        dialogIndex++;
-//
-//                                    } catch (IOException e) {
-//                                        // TODO Auto-generated catch block
-//                                        e.printStackTrace();
-//                                    }
-//                                    Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT)
-//                                            .show();
-//
-//                                }
-//                            }
-//                            //
-//                        }
-//                    }, null);
-//            showDialog(DialogBase.DIALOG_TEXT_ENTRY + dialogIndex);
-//            dialogIndex++;
-        }
     }
 
     protected void newContent() {
@@ -1776,59 +1714,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         } catch (NoSuchMethodError e) {
 
         }
-        String code = NAction.getCode(this);
         if (keyCoder == KeyEvent.KEYCODE_BACK) {
-            if (IS_DOC_BACK) {
-                IS_DOC_BACK = false;
-            } else {
-
-                if (code.contains("qedit")) {
-                    if (mCurrentFilePath == null) {
-                        if (mDirty) {
-                            quitWithoutSave();
-                        } else {
-
-                            finish();
-                        }
-                    } else {
-                        Intent intent = getIntent();
-                        String action = intent.getAction();
-                        if (action == null) {
-                            newContent();
-                        } else {
-                            if (mDirty) {
-                                finishWithoutSave();
-                            } else {
-
-                                finish();
-
-                            }
-                        }
-                    }
-                } else {
-
-                    if (mCurrentFilePath == null) {
-                        if (mDirty) {
-                            quitWithoutSave();
-                        } else {
-                            finish();
-                        }
-                    } else {
-                        Intent intent = getIntent();
-                        String action = intent.getAction();
-                        if (action == null) {
-                            newContent();
-                        } else {
-                            if (mDirty) {
-                                finishWithoutSave();
-                            } else {
-
-                                finish();
-                            }
-                        }
-                    }
-                }
-            }
+            finishEdit();
         } else if (isCtr) {
             switch (keyCoder) {
                 case KeyEvent.KEYCODE_F:
@@ -1896,6 +1783,59 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
 
         return super.onKeyDown(keyCoder, event);
+    }
+
+    private void finishEdit() {
+        if (IS_DOC_BACK) {
+            IS_DOC_BACK = false;
+        } else {
+            if (NAction.getCode(this).contains("qedit")) {
+                if (mCurrentFilePath == null) {
+                    if (mDirty) {
+                        quitWithoutSave();
+                    } else {
+
+                        finish();
+                    }
+                } else {
+                    Intent intent = getIntent();
+                    String action = intent.getAction();
+                    if (action == null) {
+                        newContent();
+                    } else {
+                        if (mDirty) {
+                            finishWithoutSave();
+                        } else {
+
+                            finish();
+
+                        }
+                    }
+                }
+            } else {
+
+                if (mCurrentFilePath == null) {
+                    if (mDirty) {
+                        quitWithoutSave();
+                    } else {
+                        finish();
+                    }
+                } else {
+                    Intent intent = getIntent();
+                    String action = intent.getAction();
+                    if (action == null) {
+                        newContent();
+                    } else {
+                        if (mDirty) {
+                            finishWithoutSave();
+                        } else {
+
+                            finish();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

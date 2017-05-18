@@ -163,4 +163,13 @@
     <string name="open">打开</string>
     <string name="file_name">File Name</string>
     <string name="file_exist_hint">This file is exist, please rename.</string>
+    <string name="script">脚本</string>
+    <string name="empty_file">空白文件</string>
+    <string name="webapp_project">WebApp(Project)</string>
+    <string name="console_app_project">ConsoleApp(Project)</string>
+    <string name="kivy_app_project">KivyApp(Project)</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="new_project">新建项目</string>
+    <string name="error_dont_kn">Some error occurred.</string>
 </resources>
