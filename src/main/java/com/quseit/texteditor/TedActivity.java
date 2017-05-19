@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -41,6 +42,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -49,10 +51,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -78,6 +83,7 @@ import com.quseit.texteditor.undo.TextChangeWatcher;
 import com.quseit.base.MyApp;
 import com.quseit.util.NAction;
 import com.quseit.util.NStorage;
+import com.quseit.util.Utils;
 
 /**
  * @author River
@@ -89,6 +95,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     private static final String CONSOLE_PROJECT = "console";
     private static final String KIVY_PROJECT    = "kivy";
 
+    private InputMethodManager imm;
+
     private LayoutEditorBinding binding;
     private WidgetSaveBinding   widgetSaveBinding;
     private SearchTopBinding    searchTopBinding;
@@ -96,13 +104,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     protected String mCurrentFilePath;
     protected String mCurrentFileName;
 
-    private NewEditorPopUp editorPopUp;
-
+    private   NewEditorPopUp editorPopUp;
+    private   boolean        disableKeyboard;
     /**
      * the runnable to run after a save
      */
-    protected Runnable mAfterSave; // Mennen ? Axe ?
-    protected boolean  mDirty;
+    protected Runnable       mAfterSave; // Mennen ? Axe ?
+    protected boolean        mDirty;
 
     /**
      * is read only
@@ -135,6 +143,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         MyApp.getInstance().addActivity(this, CONF.BASE_PATH, "");
 
         binding = DataBindingUtil.setContentView(this, R.layout.layout_editor);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 //        switch (getIntent().getExtras().getInt(EXTRA_REQUEST_CODE)) {
 //            case REQUEST_PROJECT:
 //                break;
@@ -267,13 +276,43 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             }
         });
         searchTopBinding.textSearch.addTextChangedListener(this);
+        searchTopBinding.textSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchNext();
+            }
+        });
+        binding.searchBottom.buttonSearchNext.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchNext();
+            }
+        });
+
+        binding.searchBottom.buttonSearchPrev.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchPrevious();
+            }
+        });
     }
 
     private void initListener() {
         binding.ivBack.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishEdit();
+                //finishEdit();
+
             }
         });
         binding.ivOpen.setOnClickListener(new OnClickListener() {
@@ -317,6 +356,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 editorPopUp.show(binding.rlTop);
             }
         });
+        binding.ivSetting.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: 2017-05-19
+            }
+        });
         binding.ibMore.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -337,22 +382,39 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 view.setSelected(!view.isSelected());
             }
         });
+        binding.ibKeyboard.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!v.isSelected()) {
+                    binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboardlock);
+                    disableKeyboard = true;
+                    if (imm.isAcceptingText()) {
+                        imm.hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
+                    }
+                } else {
+                    disableKeyboard = false;
+                    binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboard);
+                    binding.editor.setFocusable(true);
+                }
+                v.setSelected(!v.isSelected());
+            }
+        });
         binding.ibLeftIndent.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 leftIndent();
             }
         });
-        binding.ibJumpTo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
         binding.ibRightIndent.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 rightIndent();
+            }
+        });
+        binding.ibJumpTo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToLine();
             }
         });
         binding.playBtn.setOnClickListener(new OnClickListener() {
@@ -382,6 +444,19 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 binding.searchBottom.rlSearchBottom.setVisibility(View.VISIBLE);
                 searchTopBinding.llSearch.setVisibility(View.VISIBLE);
             }
+        });
+        binding.ibUndo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                undo();
+            }
+        });
+        binding.editor.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return disableKeyboard;
+            }
+
         });
     }
 
@@ -461,7 +536,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     public static void start(Context context, String action, Uri path) {
         Intent starter = new Intent(context, TedActivity.class);
         starter.setAction(action);
-        starter.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         starter.setData(path);
         context.startActivity(starter);
     }
@@ -508,16 +582,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         });
         builder.show();
     }
-
-
-//    if (seq == 2) {
-//                                                insertSnippet("QPy_WebApp");
-//
-//                                            } else if (seq == 3) {
-//                                                insertSnippet("QPy_ConsoleApp");
-//
-//                                            } else {
-//                                                insertSnippet("QPy_KivyApp");
 
 
     /**
@@ -752,7 +816,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         int endSelection = binding.editor.getSelectionEnd();
         String selectedText = binding.editor.getText().toString().substring(startSelection, endSelection);
         if (selectedText.length() != 0) {
-//            mSearchInput.setText(selectedText);
+            searchTopBinding.textSearch.setText(selectedText);
         }
     }
 
@@ -1454,6 +1518,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         NStorage.setSP(getApplicationContext(), "qedit.last_filename", "");
         new EnterDialog(TedActivity.this)
                 .setTitle(getString(R.string.new_project))
+                .setHint(getString(R.string.project_name))
                 .setConfirmListener(new EnterDialog.ClickListener() {
                     @Override
                     public boolean OnClickListener(String name) {
@@ -1461,9 +1526,9 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                         final boolean isQpy3 = NAction.isQPy3(getApplicationContext());
 
                         curArtistDir.push(Environment.getExternalStorageDirectory() + "/" + CONF.BASE_PATH
-                                + "/" + (isQpy3 ? CONF.DFROM_QPY3 : CONF.DFROM_QPY2));
+                                + "/" + (isQpy3 ? CONF.DFROM_PRJ3 : CONF.DFROM_PRJ2) + "/" + name);
 
-                        File fileN = new File(curArtistDir.peek(), name);
+                        File fileN = new File(curArtistDir.peek());
                         if (fileN.exists()) {
                             Toast.makeText(getApplicationContext(), R.string.file_exists, Toast.LENGTH_SHORT)
                                     .show();
@@ -1472,12 +1537,15 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                             try {
                                 newContent();
 
-                                fileN.createNewFile();
-                                mCurrentFilePath = fileN.getAbsolutePath();
-
-                                doOpenFile(fileN, false);
-                                insertSnippet(type);
-                                saveContent();
+                                if (fileN.mkdirs()) {
+                                    File mainPy = new File(fileN.getAbsolutePath(), "main.py");
+                                    if (mainPy.createNewFile()) {
+                                        mCurrentFilePath = mainPy.getAbsolutePath();
+                                        doOpenFile(mainPy, false);
+                                        insertSnippet(type);
+                                        saveContent();
+                                    }
+                                }
                             } catch (IOException e) {
                                 Toast.makeText(TedActivity.this, R.string.error_dont_kn, Toast.LENGTH_SHORT).show();
                                 e.printStackTrace();
@@ -1706,16 +1774,21 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
     @Override
     public boolean onKeyUp(int keyCoder, KeyEvent event) {
-        boolean isCtr = false;
-        try {
-            if (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB) {
-                isCtr = event.isCtrlPressed();
-            }
-        } catch (NoSuchMethodError e) {
-
-        }
+        boolean isCtr = event.isCtrlPressed();
         if (keyCoder == KeyEvent.KEYCODE_BACK) {
-            finishEdit();
+            if (searchTopBinding != null && searchTopBinding.llSearch.getVisibility() == View.VISIBLE) {
+                search();
+            } else if (((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).isAcceptingText()) {
+                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+            } else {
+                finishEdit();
+            }
+//            else if (Settings.UNDO && Settings.BACK_BTN_AS_UNDO) {
+//                if (!undo()) {
+//                    warnOrQuit();
+//                }
+//            }
+            return true;
         } else if (isCtr) {
             switch (keyCoder) {
                 case KeyEvent.KEYCODE_F:
@@ -1742,6 +1815,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 case KeyEvent.KEYCODE_R:
                     runScript();
                     break;
+                case KeyEvent.KEYCODE_SOFT_LEFT:
+
                 default:
                     break;
             }
@@ -1765,6 +1840,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                     // Toast.makeText(this,"tab tab tab", Toast.LENGTH_SHORT).show();
                     break;
                 case KeyEvent.KEYCODE_BACK:
+
 //                    if (mSearchLayout.getVisibility() != View.GONE)
 //                        search();
 //                    else if (Settings.UNDO && Settings.BACK_BTN_AS_UNDO) {
@@ -1773,7 +1849,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 //                            warnOrQuit();
 //                    }
                     // TODO: 2017-05-10
-                    break;
                 case KeyEvent.KEYCODE_SEARCH:
                     search();
                     mWarnedShouldQuit = false;
@@ -1794,7 +1869,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                     if (mDirty) {
                         quitWithoutSave();
                     } else {
-
                         finish();
                     }
                 } else {
@@ -1949,20 +2023,20 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     protected void search() {
         if (CONF.DEBUG)
             Log.d(TAG, "search");
-        LinearLayout rb = (LinearLayout) findViewById(R.id.return_bar_box);
-//        switch (mSearchLayout.getVisibility()) {
-//            case View.GONE:
-//                rb.setVisibility(View.GONE);
-//
-//                mSearchLayout.setVisibility(View.VISIBLE);
-//                break;
-//            case View.VISIBLE:
-//            default:
-//                rb.setVisibility(View.VISIBLE);
-//                mSearchLayout.setVisibility(View.GONE);
-//                break;
-//        }
-        // TODO: 2017-05-10
+        switch (searchTopBinding.llSearch.getVisibility()) {
+            case View.GONE:
+                searchTopBinding.llSearch.setVisibility(View.VISIBLE);
+                binding.searchBottom.rlSearchBottom.setVisibility(View.VISIBLE);
+                searchTopBinding.textSearch.requestFocus();
+                binding.returnBarBox.setVisibility(View.GONE);
+                break;
+            case View.VISIBLE:
+            default:
+                searchTopBinding.llSearch.setVisibility(View.GONE);
+                binding.searchBottom.rlSearchBottom.setVisibility(View.GONE);
+                binding.returnBarBox.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
     /**
@@ -1973,38 +2047,23 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         String search, text;
         int selection, next;
 
-//        search = mSearchInput.getText().toString();
+        search = searchTopBinding.textSearch.getText().toString();
         text = binding.editor.getText().toString();
         selection = binding.editor.getSelectionEnd();
 
-//        if (search.length() == 0) {
-//            Toast.makeText(getApplicationContext(), R.string.toast_search_no_input, Toast.LENGTH_SHORT).show();
-//            // Crouton.showText(this, R.string.toast_search_no_input, Style.INFO);
-//            return;
-//        }
-        // TODO: 2017-05-10
-
         if (!Settings.SEARCHMATCHCASE) {
-//            search = search.toLowerCase();
-            // TODO: 2017-05-10
+            search = search.toLowerCase();
             text = text.toLowerCase();
         }
 
-//        next = text.indexOf(search, selection);
-// TODO: 2017-05-10
-        next = 0;
-        search = "";
+        next = text.indexOf(search, selection);
         if (next > -1) {
             binding.editor.setSelection(next, next + search.length());
-            if (!binding.editor.isFocused())
-                binding.editor.requestFocus();
         } else {
             if (Settings.SEARCHWRAP) {
                 next = text.indexOf(search);
                 if (next > -1) {
                     binding.editor.setSelection(next, next + search.length());
-                    if (!binding.editor.isFocused())
-                        binding.editor.requestFocus();
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.toast_search_not_found, Toast.LENGTH_SHORT).show();
                     // Crouton.showText(this, R.string.toast_search_not_found,Style.INFO);
@@ -2025,8 +2084,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         String search, text;
         int selection, next;
 
-//        search = mSearchInput.getText().toString();
-        search = "";// TODO: 2017-05-10
+        search = searchTopBinding.textSearch.getText().toString();
         text = binding.editor.getText().toString();
         selection = binding.editor.getSelectionStart() - 1;
 
@@ -2138,14 +2196,24 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         return myList.get(indexNewLine);
     }
 
-    /**
-     * Go to Line number in file
-     */
-    public void onGotoLine(View v) {
-        goToLine();
-    }
-
     public void goToLine() {
+        new EnterDialog(this).setTitle(getString(R.string.jump_to))
+                .setEnterType(InputType.TYPE_CLASS_NUMBER)
+                .setHint("1~" + binding.editor.getLineCount())
+                .setConfirmListener(new EnterDialog.ClickListener() {
+                    @Override
+                    public boolean OnClickListener(String content) {
+                        int line = Integer.parseInt(content);
+                        if (line > binding.editor.getLineCount()) {
+                            Toast.makeText(TedActivity.this, R.string.fail_to_goto, Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
+                        int position = NewLineIndex(line);
+                        binding.editor.setSelection(position);
+                        return true;
+                    }
+                })
+                .show();
         // String tip = "Line number less than "+binding.editor.getLineCount();
         // final EditText input = new EditText(this);
 

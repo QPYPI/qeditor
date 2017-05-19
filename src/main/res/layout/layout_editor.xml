@@ -107,12 +107,12 @@
                     />
 
                 <ImageButton
+                    android:id="@+id/ib_keyboard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="0.0dp"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:visibility="gone"
                     android:padding="5.0dp"
                     android:src="@drawable/ic_editor_keyboard"
                     />
@@ -180,7 +180,7 @@
                     />
 
                 <ImageButton
-                    android:id="@+id/save_as"
+                    android:id="@+id/ib_undo"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

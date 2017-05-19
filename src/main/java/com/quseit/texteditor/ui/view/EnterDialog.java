@@ -72,6 +72,11 @@ public class EnterDialog {
         return this;
     }
 
+    public EnterDialog setEnterType(int type) {
+        binding.etEnter.setInputType(type);
+        return this;
+    }
+
     public void show() {
         dialog.show();
     }

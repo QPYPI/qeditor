@@ -172,4 +172,7 @@
     <string name="cancel">取消</string>
     <string name="new_project">新建项目</string>
     <string name="error_dont_kn">Some error occurred.</string>
+    <string name="project_name">项目名</string>
+    <string name="jump_to">转至某行</string>
+    <string name="line_too_large">Can\'t find this line</string>
 </resources>
