@@ -5,21 +5,16 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FF363636"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="@dimen/default_margin">
-
-        <ImageView
-            android:id="@+id/iv_folder_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_editor_folder"/>
 
         <TextView
             android:id="@+id/textFileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/default_margin"
+            android:drawablePadding="@dimen/default_margin"
             android:gravity="center_vertical"
             android:textColor="#FFF"
             android:typeface="sans">

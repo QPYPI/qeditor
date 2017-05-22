@@ -38,15 +38,15 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
-                android:src="@drawable/ic_more_vert_white"/>
+                android:padding="10dp"
+                android:src="@drawable/ic_more"/>
 
             <ImageView
                 android:id="@+id/iv_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
+                android:padding="10dp"
                 android:layout_toLeftOf="@id/iv_setting"
                 android:src="@drawable/ic_add"/>
 
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="16dp"
+                android:padding="10dp"
                 android:layout_toLeftOf="@id/iv_add"
                 android:src="@drawable/ic_editor_open"/>
 
@@ -162,9 +162,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="#00ffffff"
+                    android:background="@null"
                     android:clickable="true"
-                    android:padding="5.0dip"
+                    android:padding="5dip"
                     android:src="@drawable/ic_editor_start"
                     />
 

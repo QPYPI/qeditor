@@ -17,6 +17,9 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
 import com.quseit.texteditor.widget.crouton.Crouton;
 import com.quseit.texteditor.widget.crouton.Style;
 import com.quseit.texteditor.androidlib.data.FileUtils;
@@ -26,6 +29,8 @@ import com.quseit.texteditor.BuildConfig;
 public class TedSettingsActivity extends PreferenceActivity implements
 		Constants, OnSharedPreferenceChangeListener {
 
+    protected AdvancedEditText mSampleTED;
+    protected boolean mPreviousHP;
 	/**
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -39,10 +44,18 @@ public class TedSettingsActivity extends PreferenceActivity implements
 		addPreferencesFromResource(R.xml.ted_prefs);
 		setContentView(R.layout.layout_prefs);
 
+        ((TextView)findViewById(R.id.tv_title)).setText(R.string.settings_label);
+
 		getPreferenceManager().getSharedPreferences()
 				.registerOnSharedPreferenceChangeListener(this);
 
 		mSampleTED = (AdvancedEditText) findViewById(R.id.sampleEditor);
+        findViewById(R.id.iv_arrow).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
 		Settings.updateFromPreferences(getPreferenceManager()
 				.getSharedPreferences());
@@ -71,6 +84,10 @@ public class TedSettingsActivity extends PreferenceActivity implements
 		updateSummaries();
 	}
 
+	public static void start(Context context) {
+	    Intent starter = new Intent(context, TedSettingsActivity.class);
+	    context.startActivity(starter);
+	}
 	/**
 	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences,
 	 *      java.lang.String)
@@ -177,7 +194,5 @@ public class TedSettingsActivity extends PreferenceActivity implements
 		}*/
 	}
 
-	protected AdvancedEditText mSampleTED;
-	protected boolean mPreviousHP;
 
 }

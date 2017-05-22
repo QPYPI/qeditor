@@ -32,6 +32,25 @@ import java.util.List;
 public abstract class BrowsingActivity extends Activity implements
 		OnItemClickListener {
 
+	/** The list of files to display */
+	protected ArrayList<File> mList;
+	/** the dialog's list view */
+	protected ListView mFilesList;
+	/** The list adapter */
+	protected FileListAdapter mListAdapter;
+
+	/** the current folder */
+	protected File mCurrentFolder;
+
+	/** the current file sort */
+	protected Comparator<File> mComparator;
+
+	protected boolean mShowFoldersOnly = false;
+	protected boolean mShowHiddenFiles = true;
+	protected boolean mHideNonWriteableFiles = false;
+	protected List<String> mExtensionsWhiteList;
+	protected List<String> mExtensionsBlackList;
+
 	/**
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
@@ -248,22 +267,4 @@ public abstract class BrowsingActivity extends Activity implements
 		return allow;
 	}
 
-	/** The list of files to display */
-	protected ArrayList<File> mList;
-	/** the dialog's list view */
-	protected ListView mFilesList;
-	/** The list adapter */
-	protected FileListAdapter mListAdapter;
-
-	/** the current folder */
-	protected File mCurrentFolder;
-
-	/** the current file sort */
-	protected Comparator<File> mComparator;
-
-	protected boolean mShowFoldersOnly = false;
-	protected boolean mShowHiddenFiles = true;
-	protected boolean mHideNonWriteableFiles = false;
-	protected List<String> mExtensionsWhiteList;
-	protected List<String> mExtensionsBlackList;
 }

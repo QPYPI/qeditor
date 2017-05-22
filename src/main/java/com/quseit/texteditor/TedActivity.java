@@ -69,6 +69,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.quseit.base.DialogBase;
 import com.quseit.texteditor.common.Constants;
 import com.quseit.texteditor.common.RecentFiles;
 import com.quseit.texteditor.common.Settings;
@@ -83,6 +84,7 @@ import com.quseit.texteditor.undo.TextChangeWatcher;
 import com.quseit.base.MyApp;
 import com.quseit.util.NAction;
 import com.quseit.util.NStorage;
+import com.quseit.util.NUtil;
 import com.quseit.util.Utils;
 
 /**
@@ -311,14 +313,19 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         binding.ivBack.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                //finishEdit();
-
+                finishEdit();
             }
         });
         binding.ivOpen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 TedLocalActivity.start(TedActivity.this);
+            }
+        });
+        binding.ivSetting.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TedSettingsActivity.start(TedActivity.this);
             }
         });
         binding.ivAdd.setOnClickListener(new OnClickListener() {
@@ -356,12 +363,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 editorPopUp.show(binding.rlTop);
             }
         });
-        binding.ivSetting.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: 2017-05-19
-            }
-        });
         binding.ibMore.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -387,14 +388,16 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             public void onClick(View v) {
                 if (!v.isSelected()) {
                     binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboardlock);
-                    disableKeyboard = true;
+//                    disableKeyboard = true;
                     if (imm.isAcceptingText()) {
                         imm.hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
                     }
+                    binding.editor.setEnabled(false);
                 } else {
-                    disableKeyboard = false;
+//                    disableKeyboard = false;
                     binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboard);
-                    binding.editor.setFocusable(true);
+//                    binding.editor.setFocusable(true);
+                    binding.editor.setEnabled(true);
                 }
                 v.setSelected(!v.isSelected());
             }
@@ -450,13 +453,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             public void onClick(View v) {
                 undo();
             }
-        });
-        binding.editor.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return disableKeyboard;
-            }
-
         });
     }
 
@@ -2285,7 +2281,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 //                        callLuaApi("qedit", mCurrentFilePath, content);
 
                     } else {
-//                        callPyApi("qedit", mCurrentFilePath, content);
+                        callPyApi("qedit", mCurrentFilePath, content);
                     }
                 }
             }
@@ -2500,5 +2496,138 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     // } */
     // return false;
     // }
+
+    protected static final int SCRIPT_EXEC_PY = 2235;
+    public void callPyApi(String flag, String param, String pyCode) {
+        String proxyCode = "";
+        String extPlgPlusName = com.quseit.config.CONF.EXT_PLG;
+        String extPlg3Name = CONF.EXT_PLG_3;
+        String extPlgName = NAction.getExtP(getApplicationContext(), "ext_plugin");
+        if (extPlgName.equals("")) {
+            extPlgName = com.quseit.config.CONF.EXT_PLG;
+        }
+
+        String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg");
+        if (plgUrl.equals("")) {
+            plgUrl = com.quseit.config.CONF.EXT_PLG_URL;
+        }
+        try {
+            String localPlugin = this.getPackageName();
+            Intent intent = new Intent();
+            intent.setClassName(localPlugin, "org.qpython.qpylib.MPyApi");
+            intent.setAction("org.qpython.qpylib.action.MPyApi");
+
+            Bundle mBundle = new Bundle();
+            mBundle.putString("root", MyApp.getInstance().getRoot());
+
+            mBundle.putString("app", NAction.getCode(getApplicationContext()));
+            mBundle.putString("act", "onPyApi");
+            mBundle.putString("flag", flag);
+            mBundle.putString("param", param);
+            mBundle.putString("pycode", proxyCode+pyCode);
+
+            intent.putExtras(mBundle);
+
+            startActivityForResult(intent, SCRIPT_EXEC_PY);
+        } catch (Exception e) {
+
+            // qpython 3
+            if (pyCode.contains("#qpy3\n")) {
+                if (NUtil.checkAppInstalledByName(getApplicationContext(), extPlg3Name)) {
+                    Intent intent = new Intent();
+                    intent.setClassName(extPlg3Name, "org.qpython.qpylib.MPyApi");
+                    intent.setAction("org.qpython.qpylib.action.MPyApi");
+
+                    Bundle mBundle = new Bundle();
+                    mBundle.putString("app", NAction.getCode(getApplicationContext()));
+                    mBundle.putString("act", "onPyApi");
+                    mBundle.putString("flag", flag);
+                    mBundle.putString("param", param);
+                    mBundle.putString("pycode", proxyCode+pyCode);
+
+                    intent.putExtras(mBundle);
+
+                    startActivityForResult(intent, SCRIPT_EXEC_PY);
+
+                } else {
+
+//                    WBase.setTxtDialogParam(0, R.string.pls_install_qpy, new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg3");
+//                            if (plgUrl.equals("")) {
+//                                plgUrl = CONF.EXT_PLG_URL3;
+//                            }
+//                            try {
+//                                Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
+//                                startActivity(intent);
+//                            } catch (Exception e) {
+//                                plgUrl = CONF.EXT_PLG_URL3;
+//                                Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
+//                                startActivity(intent);
+//                            }
+//                        }
+//                    }, null);
+//                    showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
+//                    dialogIndex++;
+
+                }
+
+            } else { //
+
+                if (NUtil.checkAppInstalledByName(getApplicationContext(), extPlgPlusName)) {
+                    Intent intent = new Intent();
+                    intent.setClassName(extPlgPlusName, "org.qpython.qpylib.MPyApi");
+                    intent.setAction("org.qpython.qpyplib.action.MPyApi");
+
+                    Bundle mBundle = new Bundle();
+                    mBundle.putString("app", NAction.getCode(getApplicationContext()));
+                    mBundle.putString("act", "onPyApi");
+                    mBundle.putString("flag", flag);
+                    mBundle.putString("param", param);
+                    mBundle.putString("pycode", proxyCode+pyCode);
+
+                    intent.putExtras(mBundle);
+
+                    startActivityForResult(intent, SCRIPT_EXEC_PY);
+
+                } else if (NUtil.checkAppInstalledByName(getApplicationContext(), extPlgName)) {
+
+                    Intent intent = new Intent();
+                    intent.setClassName(extPlgName, "org.qpython.qpylib.MPyApi");
+                    intent.setAction("org.qpython.qpyplib.action.MPyApi");
+
+                    Bundle mBundle = new Bundle();
+                    mBundle.putString("app", NAction.getCode(getApplicationContext()));
+                    mBundle.putString("act", "onPyApi");
+                    mBundle.putString("flag", flag);
+                    mBundle.putString("param", param);
+                    mBundle.putString("pycode", proxyCode+pyCode);
+
+                    intent.putExtras(mBundle);
+
+                    startActivityForResult(intent, SCRIPT_EXEC_PY);
+
+                }  else {
+
+//                    WBase.setTxtDialogParam(0, R.string.pls_install_qpy, new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//
+//                            String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg");
+//                            if (plgUrl.equals("")) {
+//                                plgUrl = com.quseit.config.CONF.EXT_PLG_URL;
+//                            }
+//                            Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
+//                            startActivity(intent);
+//                        }
+//                    }, null);
+//                    showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
+//                    dialogIndex++;
+                }
+            }
+
+        }
+    }
 
 }
