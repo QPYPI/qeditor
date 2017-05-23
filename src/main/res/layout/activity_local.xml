@@ -30,6 +30,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/rl_path"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/toolbar_height"
                 android:background="#FF363636">
@@ -54,7 +55,7 @@
 
             </RelativeLayout>
 
-            <ListView
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/lv_folders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

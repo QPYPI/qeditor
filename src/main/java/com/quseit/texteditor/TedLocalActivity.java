@@ -8,18 +8,28 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.quseit.texteditor.common.CommonEnums;
 import com.quseit.texteditor.common.Constants;
+import com.quseit.texteditor.common.RecentFiles;
 import com.quseit.texteditor.databinding.ActivityLocalBinding;
 import com.quseit.texteditor.databinding.ViewStubSavePromptBinding;
 import com.quseit.texteditor.ui.adapter.PathListAdapter;
 import com.quseit.texteditor.ui.adapter.bean.FolderBean;
+import com.quseit.texteditor.ui.view.EnterDialog;
+import com.quseit.texteditor.ui.view.MyItemDecoration;
+import com.quseit.texteditor.ui.view.MyTouchHelperCallback;
+import com.quseit.texteditor.widget.crouton.Crouton;
+import com.quseit.texteditor.widget.crouton.Style;
 import com.quseit.util.FileHelper;
 
 import java.io.File;
@@ -43,6 +53,7 @@ public class TedLocalActivity extends Activity implements Constants {
 
     private int request;
     private int _GLOBAL_DEPTH = 0;
+    private boolean deleteable;
 
     @SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
     @Override
@@ -51,11 +62,11 @@ public class TedLocalActivity extends Activity implements Constants {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_local);
         initView();
         initField();
-        initWidgetTabItem();
         initListener();
         switch (request) {
             case REQUEST_RECENT:
                 binding.toolbarTitle.setText(R.string.recent);
+                binding.rlPath.setVisibility(View.GONE);
                 break;
             case REQUEST_OPEN:
                 binding.toolbarTitle.setText(R.string.open);
@@ -67,6 +78,9 @@ public class TedLocalActivity extends Activity implements Constants {
                 initSaveListener();
                 break;
             case REQUEST_HOME_PAGE:
+                binding.toolbarTitle.setText(R.string.explorer);
+                binding.ivNewFolder.setVisibility(View.VISIBLE);
+                deleteable = true;
                 break;
         }
         myloadContent("", -1);
@@ -75,14 +89,29 @@ public class TedLocalActivity extends Activity implements Constants {
 
     @Override
     public void onResume() {
-//        myloadContent("", -1);
         super.onResume();
     }
 
     private void initView() {
         folderList = new ArrayList<>();
-        adapter = new PathListAdapter(folderList);
+        adapter = new PathListAdapter(folderList, this, new PathListAdapter.Callback() {
+            @Override
+            public void click(int position) {
+                FolderBean item = folderList.get(position);
+                if (item.getType().equals(CommonEnums.FileType.FILE)) {
+                    TedActivity.start(TedLocalActivity.this, Intent.ACTION_EDIT, Uri.fromFile(item.getFile()));
+                } else {
+                    myloadContent(item.getName(), -1);
+                }
+            }
+        });
+        binding.lvFolders.setLayoutManager(new LinearLayoutManager(this));
         binding.lvFolders.setAdapter(adapter);
+        if (deleteable) {
+            binding.lvFolders.setHasFixedSize(true);
+            new ItemTouchHelper(new MyTouchHelperCallback(0, ItemTouchHelper.LEFT, adapter, this)).attachToRecyclerView(binding.lvFolders);
+            binding.lvFolders.addItemDecoration(new MyItemDecoration());
+        }
     }
 
     private void initField() {
@@ -106,7 +135,6 @@ public class TedLocalActivity extends Activity implements Constants {
                     String yy;
                     if (curArtistDir.peek().endsWith("/")) {
                         yy = curArtistDir.peek() + folder;
-
                     } else {
                         yy = curArtistDir.peek() + "/" + folder;
                     }
@@ -122,9 +150,11 @@ public class TedLocalActivity extends Activity implements Constants {
         context.startActivity(starter);
     }
 
-    public void onNotify(View v) {
+    public static void start(Context context, int requestCode) {
+        Intent starter = new Intent(context, TedLocalActivity.class);
+        starter.putExtra(EXTRA_REQUEST_CODE, requestCode);
+        context.startActivity(starter);
     }
-
 
     public boolean onTop() {
         if (curArtistDir.size() == 1) {
@@ -142,21 +172,12 @@ public class TedLocalActivity extends Activity implements Constants {
             prevDir.push(xx);
 
             //Log.d(TAG, "prevDir:"+prevDir);
-            int curPosition = 0;
-            myloadContent("", curPosition);
+            myloadContent("", 0);
             return true;
         }
     }
 
 
-    private void prepareQuickActionBarT() {
-//        mBarT = new QuickActionBar(this);
-//        mBarT.addQuickAction(new MyQuickAction(this, R.drawable.ic_delete, R.string.info_delete));
-//        mBarT.addQuickAction(new MyQuickAction(this, R.drawable.ic_edit_b, R.string.info_rename));
-//        mBarT.addQuickAction(new MyQuickAction(this, R.drawable.ic_menu_share, R.string.share));
-//
-//        mBarT.setOnQuickActionClickListener(mActionListener);
-    }
 //    private OnQuickActionClickListener mActionListener = new OnQuickActionClickListener() {
 //        @Override
 //		public void onQuickActionClicked(QuickActionWidget widget, int position) {
@@ -189,20 +210,12 @@ public class TedLocalActivity extends Activity implements Constants {
     public void myloadContent(String dirname, int position) {
         //String code = NAction.getCode(getApplicationContext());
         if (request == REQUEST_RECENT) {
-//	    	adapter.clear();
-//	    	adapter.add(new TextItem(getString(R.string.info_recent)));
-//	    	ArrayList<String> mList = RecentFiles.getRecentFiles();
-//	    	for (int i=0;i<mList.size();i++) {
-//	    		String item = mList.get(i);
-//
-//	    		LongTextItem sItem = new LongTextItem(item);
-//
-//				sItem.setTag(0, "");
-//				sItem.setTag(1, item);
-//				adapter.add(sItem);
-//	    	}
-//	    	adapter.notifyDataSetChanged();
-
+            folderList.clear();
+            for (String path : RecentFiles.getRecentFiles()
+                    ) {
+                folderList.add(new FolderBean(new File(path)));
+            }
+            adapter.notifyDataSetChanged();
         } else {
             if (dirname != null && !dirname.equals("")) {
                 curArtistDir.push(curArtistDir.peek() + "/" + dirname);
@@ -323,44 +336,6 @@ public class TedLocalActivity extends Activity implements Constants {
         return true;
     }
 
-    public void infoOpen(/*TextItem textItem,*/ int position) {
-//    	Object o0 = textItem.getTag(0);
-//    	if (o0!=null) {
-//	    	String filename = o0.toString();
-//    		curTextItem = textItem;
-//
-//	    	if (filename.equals("")) {
-//    			String fullname = textItem.getTag(1).toString();
-//    			if (fullname.equals("")) {
-//    				Toast.makeText(getApplicationContext(), R.string.cannot_edit, Toast.LENGTH_SHORT).show();
-//
-//    			} else {
-//		    		if (request == REQUEST_OPEN || request == REQUEST_RECENT) {
-//		    			Log.d(TAG, "fullname:"+fullname);
-//
-//		    			if (setOpenResult(new File(fullname)))
-//		    				finish();
-//		    		}
-//
-//		    		if (request == REQUEST_SAVE_AS) {
-//		    			EditText fname = (EditText)findViewById(R.id.search_input);
-//		    			File f = new File(fullname);
-//		    			fname.setText(f.getName());
-//		    		}
-//    			}
-//	    		// TODO
-//	    	} else {
-//	    		curPosition = position;
-//	    		prevDir.push("..");
-//	    		myloadContent(filename, 0);
-//	    	}
-//    	}
-    }
-
-    protected void onListItemClick(View v, /*TextItem textItem,*/ int position) {
-//    	infoOpen(textItem, position);
-    }
-
     public void onInputClicked(View v) {
 
     }
@@ -389,29 +364,28 @@ public class TedLocalActivity extends Activity implements Constants {
     @SuppressWarnings("deprecation")
     public void doNewDir(View v) {
         // TODO: 2017-05-11
-        //final TextView media = (TextView)findViewById(R.id.plugin_mediacenter_value);
-        //String mediaVal = media.getText().toString();
-//		WBase.setTxtDialogParam(R.drawable.ic_new_b, R.string.dir_new, "","","Directory name",
-//				new DialogInterface.OnClickListener() {
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//				        AlertDialog ad = (AlertDialog) dialog;
-//				        EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
-//				        String content = t.getText().toString();
-//
-//				        File dirN = new File(curArtistDir.peek(),content);
-//				        if (dirN.exists()) {
-//				        	Toast.makeText(getApplicationContext(), R.string.dir_exists, Toast.LENGTH_SHORT).show();
-//				        } else {
-//				        	dirN.mkdir();
-//				            myloadContent(content, curPosition);
-//
-//				        }
-//				        //
-//					}
-//				},null);
-//		showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
-//		dialogIndex++;
+        new EnterDialog(this)
+                .setTitle("新建文件夹")
+                .setHint("文件夹名称")
+                .setConfirmListener(new EnterDialog.ClickListener() {
+                    @Override
+                    public boolean OnClickListener(String name) {
+                        if (name.equals("")) {
+                            Crouton.makeText(TedLocalActivity.this, "文件夹名称不能为空", Style.ALERT).show();
+                            return false;
+                        }
+                        File dirN = new File(curArtistDir.peek(), name);
+                        if (dirN.exists()) {
+                            Crouton.makeText(TedLocalActivity.this, "文件夹已存在", Style.ALERT).show();
+                            return false;
+                        } else {
+                            dirN.mkdirs();
+                            myloadContent(name, 0);
+                            return true;
+                        }
+                    }
+                })
+                .show();
     }
 
     @SuppressWarnings("deprecation")
@@ -463,111 +437,99 @@ public class TedLocalActivity extends Activity implements Constants {
 
     }
 
-    /*
-    public void cloneRepository() throws IOException, InvalidRemoteException, TransportException, GitAPIException{
-    	final Context context = this;
-    	LayoutInflater li = LayoutInflater.from(context);
-		View promptsView = li.inflate(R.layout.repo_pick, null);
-
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-				context);
-
-		// set prompts.xml to alertdialog builder
-		alertDialogBuilder.setView(promptsView);
-
-		final EditText mRepoUrl = (EditText) promptsView.findViewById(R.id.repo_url);
-		final EditText mSaveRepoAs = (EditText) promptsView.findViewById(R.id.save_repo_as);
-		
-		// set dialog message
-		alertDialogBuilder
-			.setCancelable(false)
-			.setPositiveButton("OK",
-			  new DialogInterface.OnClickListener() {
-			    public void onClick(DialogInterface dialog,int id) {
-			    	  try {			    		 
-			    		  	String repo = mRepoUrl.getText().toString();
-					    	String repoName = mSaveRepoAs.getText().toString();
-					    	
-					    	if(repo != null && repoName != null){
-					    		File localPath = new File(getCurrentDir()+"/"+repoName);
-					    		localPath.mkdir();
-
-						    	System.out.println("Cloning from " + repo + " to " + localPath);
-						        Git.cloneRepository()
-						                .setURI(repo)
-						                .setDirectory(localPath)
-						                .call();
-
-						        // now open the created repository
-						        FileRepositoryBuilder builder = new FileRepositoryBuilder();
-						        Repository repository = builder.setGitDir(localPath)
-						                .readEnvironment() // scan environment GIT_* variables
-						                .findGitDir() // scan up the file system tree
-						                .build();
-
-						        System.out.println("Having repository: " + repository.getDirectory());
-
-						        repository.close();
-					    	}			    							    	
-					    						 					    	
-					        
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvalidRemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (TransportException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (GitAPIException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			    }
-			  })
-			.setNegativeButton("Cancel",
-			  new DialogInterface.OnClickListener() {
-			    public void onClick(DialogInterface dialog,int id) {
-				dialog.cancel();
-			    }
-			  });
-
-		// create alert dialog
-		AlertDialog alertDialog = alertDialogBuilder.create();
-
-		// show it
-		alertDialog.show();
-    	
-    }
-    
-    public void cloneRepo(View v) throws InvalidRemoteException, TransportException, IOException, GitAPIException{
-    	//Toast.makeText(this, getCurrentDir(), Toast.LENGTH_SHORT).show();
-    	cloneRepository();
-    }
-    */
-    protected void initWidgetTabItem() {
-//	    addActionBarItem(getGDActionBar()
-//        		.newActionBarItem(NormalActionBarItem.class)
-//        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_keyboard_arrow_up_white)), 50);
-//
-//	    addActionBarItem(getGDActionBar()
-//        		.newActionBarItem(NormalActionBarItem.class)
-//        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_keyboard_arrow_right_white)), 51);
-    }
+    /**
+     * public void cloneRepository() throws IOException, InvalidRemoteException, TransportException, GitAPIException{
+     * final Context context = this;
+     * LayoutInflater li = LayoutInflater.from(context);
+     * View promptsView = li.inflate(R.layout.repo_pick, null);
+     * <p>
+     * AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+     * context);
+     * <p>
+     * // set prompts.xml to alertdialog builder
+     * alertDialogBuilder.setView(promptsView);
+     * <p>
+     * final EditText mRepoUrl = (EditText) promptsView.findViewById(R.id.repo_url);
+     * final EditText mSaveRepoAs = (EditText) promptsView.findViewById(R.id.save_repo_as);
+     * <p>
+     * // set dialog message
+     * alertDialogBuilder
+     * .setCancelable(false)
+     * .setPositiveButton("OK",
+     * new DialogInterface.OnClickListener() {
+     * public void onClick(DialogInterface dialog,int id) {
+     * try {
+     * String repo = mRepoUrl.getText().toString();
+     * String repoName = mSaveRepoAs.getText().toString();
+     * <p>
+     * if(repo != null && repoName != null){
+     * File localPath = new File(getCurrentDir()+"/"+repoName);
+     * localPath.mkdir();
+     * <p>
+     * System.out.println("Cloning from " + repo + " to " + localPath);
+     * Git.cloneRepository()
+     * .setURI(repo)
+     * .setDirectory(localPath)
+     * .call();
+     * <p>
+     * // now open the created repository
+     * FileRepositoryBuilder builder = new FileRepositoryBuilder();
+     * Repository repository = builder.setGitDir(localPath)
+     * .readEnvironment() // scan environment GIT_* variables
+     * .findGitDir() // scan up the file system tree
+     * .build();
+     * <p>
+     * System.out.println("Having repository: " + repository.getDirectory());
+     * <p>
+     * repository.close();
+     * }
+     * <p>
+     * <p>
+     * } catch (IOException e) {
+     * // TODO Auto-generated catch block
+     * e.printStackTrace();
+     * } catch (InvalidRemoteException e) {
+     * // TODO Auto-generated catch block
+     * e.printStackTrace();
+     * } catch (TransportException e) {
+     * // TODO Auto-generated catch block
+     * e.printStackTrace();
+     * } catch (GitAPIException e) {
+     * // TODO Auto-generated catch block
+     * e.printStackTrace();
+     * }
+     * }
+     * })
+     * .setNegativeButton("Cancel",
+     * new DialogInterface.OnClickListener() {
+     * public void onClick(DialogInterface dialog,int id) {
+     * dialog.cancel();
+     * }
+     * });
+     * <p>
+     * // create alert dialog
+     * AlertDialog alertDialog = alertDialogBuilder.create();
+     * <p>
+     * // show it
+     * alertDialog.show();
+     * <p>
+     * }
+     * <p>
+     * public void cloneRepo(View v) throws InvalidRemoteException, TransportException, IOException, GitAPIException{
+     * //Toast.makeText(this, getCurrentDir(), Toast.LENGTH_SHORT).show();
+     * cloneRepository();
+     * }
+     */
 
     private void initListener() {
-        binding.lvFolders.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        binding.ivNewFolder.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FolderBean item = folderList.get(position);
-                if (item.getType().equals(CommonEnums.FileType.FILE)) {
-                    TedActivity.start(TedLocalActivity.this, Intent.ACTION_EDIT, Uri.fromFile(item.getFile()));
-                } else {
-                    myloadContent(item.getName(), -1);
-                }
+            public void onClick(View v) {
+                doNewDir(v);
             }
         });
+
     }
 
     private void initSaveListener() {
@@ -577,19 +539,19 @@ public class TedLocalActivity extends Activity implements Constants {
                 doSave(saveBinding.etName.getText().toString());
             }
         });
-    }
+        saveBinding.etName.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int DRAWABLE_RIGHT = 2;
 
-    //	@Override
-    public boolean onHandleActionBarItemClick(/*ActionBarItem item,*/ int position) {
-//    	switch (item.getItemId()) {
-//	    	case 50:
-//	    		onUp(null);
-//	    		break;
-//	    	case 51:
-//	    		onBack(null);
-//	    		break;
-//    	}
-//    	return 	super.onHandleActionBarItemClick(item, position);
-        return false;
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (event.getRawX() >= (v.getRight() - ((EditText) v).getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                        ((EditText) v).setText("");
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
 }

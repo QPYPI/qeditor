@@ -71,7 +71,6 @@
 			android:paddingTop="2dip"
 			android:paddingBottom="2dip"
 			android:visibility="gone"
-			android:onClick="onNotify"
 			>
 			<TextView
 				android:id="@+id/notify"
@@ -83,7 +82,6 @@
 				android:text="notify:"
 				android:textColor="@color/link"
 				android:autoLink="web"
-				android:onClick="onNotify"
 				/>
 		</LinearLayout>
 	</LinearLayout>

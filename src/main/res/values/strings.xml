@@ -176,4 +176,6 @@
     <string name="jump_to">转至某行</string>
     <string name="line_too_large">Can\'t find this line</string>
     <string name="choose_ttf">选择字体文件(.ttf)</string>
+    <string name="explorer">文件夹</string>
+    <string name="undo">UNDO</string>
 </resources>

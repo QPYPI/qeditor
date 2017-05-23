@@ -82,6 +82,8 @@ import com.quseit.texteditor.ui.view.EnterDialog;
 import com.quseit.texteditor.ui.view.NewEditorPopUp;
 import com.quseit.texteditor.undo.TextChangeWatcher;
 import com.quseit.base.MyApp;
+import com.quseit.texteditor.widget.crouton.Crouton;
+import com.quseit.texteditor.widget.crouton.Style;
 import com.quseit.util.NAction;
 import com.quseit.util.NStorage;
 import com.quseit.util.NUtil;
@@ -366,6 +368,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         binding.ibMore.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard();
                 if (!binding.vsSave.isInflated()) {
                     widgetSaveBinding = DataBindingUtil.bind(binding.vsSave.getViewStub().inflate());
                     initSaveWidgetListener();
@@ -388,15 +391,10 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             public void onClick(View v) {
                 if (!v.isSelected()) {
                     binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboardlock);
-//                    disableKeyboard = true;
-                    if (imm.isAcceptingText()) {
-                        imm.hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
-                    }
+                    hideKeyboard();
                     binding.editor.setEnabled(false);
                 } else {
-//                    disableKeyboard = false;
                     binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboard);
-//                    binding.editor.setFocusable(true);
                     binding.editor.setEnabled(true);
                 }
                 v.setSelected(!v.isSelected());
@@ -468,6 +466,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             @Override
             public void onClick(View v) {
                 saveContentAs();
+            }
+        });
+
+        widgetSaveBinding.rlRecent.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TedLocalActivity.start(TedActivity.this, REQUEST_RECENT);
             }
         });
     }
@@ -2021,10 +2026,10 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             Log.d(TAG, "search");
         switch (searchTopBinding.llSearch.getVisibility()) {
             case View.GONE:
+                binding.returnBarBox.setVisibility(View.GONE);
                 searchTopBinding.llSearch.setVisibility(View.VISIBLE);
                 binding.searchBottom.rlSearchBottom.setVisibility(View.VISIBLE);
                 searchTopBinding.textSearch.requestFocus();
-                binding.returnBarBox.setVisibility(View.GONE);
                 break;
             case View.VISIBLE:
             default:
@@ -2100,15 +2105,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
         if (next > -1) {
             binding.editor.setSelection(next, next + search.length());
-            if (!binding.editor.isFocused())
-                binding.editor.requestFocus();
         } else {
             if (Settings.SEARCHWRAP) {
                 next = text.lastIndexOf(search);
                 if (next > -1) {
                     binding.editor.setSelection(next, next + search.length());
-                    if (!binding.editor.isFocused())
-                        binding.editor.requestFocus();
+//                    if (!binding.editor.isFocused())
+//                        binding.editor.requestFocus();
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.toast_search_not_found, Toast.LENGTH_SHORT).show();
 
@@ -2289,45 +2292,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     * Receive search click
-     *
-     * @param v
-     */
-    public void onSearch(View v) {
-        search();
-    }
-
-    /**
-     * Receive save click
-     *
-     * @param v
-     */
-    public void onSave(View v) {
-        saveContent();
-    }
-
-    /**
-     * Receive save as click
-     *
-     * @param v
-     */
-    public void onSaveAs(View v) {
-        saveContentAs();
-        // }
-
-    }
-
-    /**
-     * Receive history click
-     *
-     * @param v
-     */
-    public void onHistory(View v) {
-        openRecentFile();
-
-    }
-
-    /**
      * Opens the about activity
      */
     protected void aboutActivity() {
@@ -2336,9 +2300,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         try {
             startActivity(about);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getApplicationContext(), R.string.toast_activity_about, Toast.LENGTH_SHORT).show();
-
-            //Crouton.showText(this, R.string.toast_activity_about, Style.ALERT);
+            Crouton.showText(this, R.string.toast_activity_about, Style.ALERT);
         }
     }
 
@@ -2355,9 +2317,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 try {
                     startActivity(settings);
                 } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getApplicationContext(), R.string.toast_activity_settings, Toast.LENGTH_SHORT).show();
-
-                    //Crouton.showText(TedActivity.this, R.string.toast_activity_settings, Style.ALERT);
+                    Crouton.showText(TedActivity.this, R.string.toast_activity_settings, Style.ALERT);
                 }
             }
         };
@@ -2474,6 +2434,16 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
     }
 
+    private void hideKeyboard() {
+        try {
+            if (imm.isAcceptingText()) {
+                imm.hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
+            }
+        } catch (NullPointerException e) {
+            // do nothing
+        }
+    }
+
     /**
      * Defines the keyboard layout
      *
@@ -2497,7 +2467,9 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     // return false;
     // }
 
+
     protected static final int SCRIPT_EXEC_PY = 2235;
+
     public void callPyApi(String flag, String param, String pyCode) {
         String proxyCode = "";
         String extPlgPlusName = com.quseit.config.CONF.EXT_PLG;
@@ -2514,7 +2486,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         try {
             String localPlugin = this.getPackageName();
             Intent intent = new Intent();
-            intent.setClassName(localPlugin, "org.qpython.qpylib.MPyApi");
+            intent.setClassName(localPlugin, MPyApi.class.getName());
             intent.setAction("org.qpython.qpylib.action.MPyApi");
 
             Bundle mBundle = new Bundle();
@@ -2524,7 +2496,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             mBundle.putString("act", "onPyApi");
             mBundle.putString("flag", flag);
             mBundle.putString("param", param);
-            mBundle.putString("pycode", proxyCode+pyCode);
+            mBundle.putString("pycode", proxyCode + pyCode);
 
             intent.putExtras(mBundle);
 
@@ -2543,7 +2515,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                     mBundle.putString("act", "onPyApi");
                     mBundle.putString("flag", flag);
                     mBundle.putString("param", param);
-                    mBundle.putString("pycode", proxyCode+pyCode);
+                    mBundle.putString("pycode", proxyCode + pyCode);
 
                     intent.putExtras(mBundle);
 
@@ -2585,7 +2557,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                     mBundle.putString("act", "onPyApi");
                     mBundle.putString("flag", flag);
                     mBundle.putString("param", param);
-                    mBundle.putString("pycode", proxyCode+pyCode);
+                    mBundle.putString("pycode", proxyCode + pyCode);
 
                     intent.putExtras(mBundle);
 
@@ -2602,13 +2574,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                     mBundle.putString("act", "onPyApi");
                     mBundle.putString("flag", flag);
                     mBundle.putString("param", param);
-                    mBundle.putString("pycode", proxyCode+pyCode);
+                    mBundle.putString("pycode", proxyCode + pyCode);
 
                     intent.putExtras(mBundle);
 
                     startActivityForResult(intent, SCRIPT_EXEC_PY);
 
-                }  else {
+                } else {
 
 //                    WBase.setTxtDialogParam(0, R.string.pls_install_qpy, new DialogInterface.OnClickListener() {
 //                        @Override

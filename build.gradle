@@ -25,4 +25,5 @@ dependencies {
     compile project(':qbaselib')
 //    compile project(':qconsole')
     compile files('libs/markdown4j.jar')
+    compile 'com.android.support:recyclerview-v7:25.1.0'
 }
