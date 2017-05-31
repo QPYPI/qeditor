@@ -55,6 +55,11 @@ public class EnterDialog {
         return this;
     }
 
+    public EnterDialog setText(String text) {
+        binding.etEnter.setText(text);
+        return this;
+    }
+
     public EnterDialog setHint(String hint) {
         binding.etEnter.setHint(hint);
         return this;

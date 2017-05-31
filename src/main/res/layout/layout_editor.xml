@@ -46,8 +46,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:padding="10dp"
                 android:layout_toLeftOf="@id/iv_setting"
+                android:padding="10dp"
                 android:src="@drawable/ic_add"/>
 
             <ImageView
@@ -55,8 +55,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:padding="10dp"
                 android:layout_toLeftOf="@id/iv_add"
+                android:padding="10dp"
                 android:src="@drawable/ic_editor_open"/>
 
             <ViewStub
@@ -97,23 +97,13 @@
 
                 <ImageButton
                     android:id="@+id/ib_more"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0.0dip"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_more_horiz"
                     />
 
                 <ImageButton
                     android:id="@+id/ib_keyboard"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0.0dp"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dp"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_keyboard"
                     />
 
@@ -126,76 +116,44 @@
 
                 <ImageButton
                     android:id="@+id/ib_left_indent"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0.0dip"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editer_arrow_left"
                     />
 
 
                 <ImageButton
                     android:id="@+id/ib_right_indent"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_arrow_right"
                     />
 
 
                 <ImageButton
                     android:id="@+id/ib_jump_to"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_next"
                     />
 
                 <ImageButton
                     android:id="@+id/play_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:clickable="true"
-                    android:padding="5dip"
-                    android:src="@drawable/ic_editor_start"
-                    />
+                    style="@style/editor_bottom_btn"
+                    android:src="@drawable/ic_editor_start"/>
 
                 <ImageButton
                     android:id="@+id/ib_search"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0.0dip"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_search"
                     />
 
                 <ImageButton
                     android:id="@+id/ib_undo"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_undo"/>
 
 
                 <ImageButton
                     android:id="@+id/handle_history"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:padding="5.0dip"
+                    style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_snippet"
 
                     />

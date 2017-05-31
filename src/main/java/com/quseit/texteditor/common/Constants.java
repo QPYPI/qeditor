@@ -16,6 +16,8 @@ public interface Constants {
 
     public static final String ACTION_WIDGET_OPEN = "com.quseit.texteditor.ACTION_TED_WIDGET_OPEN";
 
+    String ACTION_WIDGET_TEXT = "com.quseit.texteditor.ACTION_TED_WIDGET_TEXT";
+
     /**
      * Fonts folder
      */

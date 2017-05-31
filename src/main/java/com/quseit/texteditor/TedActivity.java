@@ -1,32 +1,10 @@
 package com.quseit.texteditor;
 
-import static com.quseit.texteditor.androidlib.data.FileUtils.deleteItem;
-import static com.quseit.texteditor.androidlib.data.FileUtils.getCanonizePath;
-import static com.quseit.texteditor.androidlib.data.FileUtils.renameItem;
-import static com.quseit.texteditor.androidlib.ui.Toaster.showToast;
-import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.addMenuItem;
-import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.showMenuItemAsAction;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Stack;
-
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -51,25 +29,18 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-import com.quseit.base.DialogBase;
+import com.quseit.base.MyApp;
 import com.quseit.texteditor.common.Constants;
 import com.quseit.texteditor.common.RecentFiles;
 import com.quseit.texteditor.common.Settings;
@@ -81,13 +52,30 @@ import com.quseit.texteditor.databinding.WidgetSaveBinding;
 import com.quseit.texteditor.ui.view.EnterDialog;
 import com.quseit.texteditor.ui.view.NewEditorPopUp;
 import com.quseit.texteditor.undo.TextChangeWatcher;
-import com.quseit.base.MyApp;
 import com.quseit.texteditor.widget.crouton.Crouton;
 import com.quseit.texteditor.widget.crouton.Style;
+import com.quseit.util.KeyboardUtils;
 import com.quseit.util.NAction;
 import com.quseit.util.NStorage;
 import com.quseit.util.NUtil;
-import com.quseit.util.Utils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Stack;
+
+import static com.quseit.texteditor.androidlib.data.FileUtils.deleteItem;
+import static com.quseit.texteditor.androidlib.data.FileUtils.getCanonizePath;
+import static com.quseit.texteditor.androidlib.data.FileUtils.renameItem;
+import static com.quseit.texteditor.androidlib.ui.Toaster.showToast;
+import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.addMenuItem;
+import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.showMenuItemAsAction;
 
 /**
  * @author River
@@ -99,8 +87,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     private static final String CONSOLE_PROJECT = "console";
     private static final String KIVY_PROJECT    = "kivy";
 
-    private InputMethodManager imm;
-
     private LayoutEditorBinding binding;
     private WidgetSaveBinding   widgetSaveBinding;
     private SearchTopBinding    searchTopBinding;
@@ -109,7 +95,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     protected String mCurrentFileName;
 
     private   NewEditorPopUp editorPopUp;
-    private   boolean        disableKeyboard;
     /**
      * the runnable to run after a save
      */
@@ -132,6 +117,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
     protected boolean mDoNotBackup;
 
+    private   boolean isKeyboardShowing;
     /**
      * are we in a post activity result ?
      */
@@ -147,15 +133,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         MyApp.getInstance().addActivity(this, CONF.BASE_PATH, "");
 
         binding = DataBindingUtil.setContentView(this, R.layout.layout_editor);
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//        switch (getIntent().getExtras().getInt(EXTRA_REQUEST_CODE)) {
-//            case REQUEST_PROJECT:
-//                break;
-//            case REQUEST_FILE:
-//            default:
-//                binding.ivFolderTree.setImageResource(R.drawable.ic_back);
-//                break;
-//        }
+        switch (getIntent().getIntExtra(EXTRA_REQUEST_CODE, REQUEST_FILE)) {
+            case REQUEST_PROJECT:
+                break;
+            case REQUEST_FILE:
+            default:
+                break;
+        }
         initData();
         initListener();
         initFiles();
@@ -245,6 +229,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        readIntent(intent);
+    }
+
     @RequiresApi(api = VERSION_CODES.LOLLIPOP)
     private void startAnim() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -279,20 +269,10 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 binding.searchBottom.rlSearchBottom.setVisibility(View.GONE);
             }
         });
-        searchTopBinding.textSearch.addTextChangedListener(this);
-        searchTopBinding.textSearch.addTextChangedListener(new TextWatcher() {
+
+        binding.searchBottom.ivSearch.setOnClickListener(new OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
+            public void onClick(View v) {
                 searchNext();
             }
         });
@@ -452,6 +432,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 undo();
             }
         });
+
+        KeyboardUtils.addKeyboardToggleListener(this, new KeyboardUtils.SoftKeyboardToggleListener() {
+            @Override
+            public void onToggleSoftKeyboard(boolean isVisible) {
+                isKeyboardShowing = isVisible;
+            }
+        });
     }
 
     private void initSaveWidgetListener() {
@@ -531,6 +518,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
     public static void start(Context context) {
         Intent starter = new Intent(context, TedActivity.class);
+        context.startActivity(starter);
+    }
+
+    public static void start(Context context, String text) {
+        Intent starter = new Intent(context, TedActivity.class);
+        starter.putExtra("TEXT", text);
         context.startActivity(starter);
     }
 
@@ -1165,11 +1158,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
      * activity is started after a screen rotate
      */
     protected void readIntent() {
-        Intent intent;
+        readIntent(getIntent());
+    }
+    protected void readIntent(Intent intent) {
         String action;
         File file;
 
-        intent = getIntent();
         if (intent == null) {
             if (CONF.DEBUG)
                 Log.d(TAG, "No intent found, use default instead");
@@ -1187,27 +1181,21 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 file = new File(new URI(intent.getDataString()));
                 doOpenFile(file, false);
             } catch (URISyntaxException e) {
-                Toast.makeText(getApplicationContext(), R.string.toast_intent_invalid_uri, Toast.LENGTH_SHORT).show();
-
-                //Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
+                Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
             } catch (IllegalArgumentException e) {
-                Toast.makeText(getApplicationContext(), R.string.toast_intent_illegal, Toast.LENGTH_SHORT).show();
-
-                //Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
+                Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
             }
         } else if (action.equals(ACTION_WIDGET_OPEN)) {
             try {
                 file = new File(new URI(intent.getData().toString()));
                 doOpenFile(file, intent.getBooleanExtra(EXTRA_FORCE_READ_ONLY, false));
             } catch (URISyntaxException e) {
-                Toast.makeText(getApplicationContext(), R.string.toast_intent_invalid_uri, Toast.LENGTH_SHORT).show();
-
-                //Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
+                Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
             } catch (IllegalArgumentException e) {
-                Toast.makeText(getApplicationContext(), R.string.toast_intent_illegal, Toast.LENGTH_SHORT).show();
-
-                //Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
+                Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
             }
+        } else if (action.equals(ACTION_WIDGET_TEXT)) {
+            doOpenText(intent.getStringExtra("TEXT"));
         } else {
             doDefaultAction();
         }
@@ -1285,53 +1273,60 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
         try {
             text = TextFileUtils.readTextFile(file);
-            // Log.d(TAG, "Settext:"+text.length());
-
-            if (text != null) {
-                mInUndo = true;
-                binding.editor.setText(text);
-                mWatcher = new TextChangeWatcher();
-                mCurrentFilePath = getCanonizePath(file);
-                mCurrentFileName = file.getName();
-                RecentFiles.updateRecentList(mCurrentFilePath);
-                RecentFiles.saveRecentList(getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE));
-                mDirty = false;
-                mInUndo = false;
-                mDoNotBackup = false;
-                if (file.canWrite() && (!forceReadOnly)) {
-                    mReadOnly = false;
-                    binding.editor.setEnabled(true);
-                } else {
-                    mReadOnly = true;
-                    binding.editor.setEnabled(false);
-                }
-
-                if (mCurrentFilePath != null && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".lua"))) {
-                    if (mCurrentFilePath.endsWith(".py")) {
-                        binding.editor.updateFromSettings("py");
-                    } else {
-                        binding.editor.updateFromSettings("lua");
-                    }
-                } else {
-                    binding.editor.updateFromSettings("");
-
-                }
-
-                updateTitle();
-                // initDrawerMenu(this);
-
-                NStorage.setSP(getApplicationContext(), "qedit.last_filename", mCurrentFilePath);
-                return true;
+            mCurrentFilePath = getCanonizePath(file);
+            mCurrentFileName = file.getName();
+            if (file.canWrite() && (!forceReadOnly)) {
+                mReadOnly = false;
+                binding.editor.setEnabled(true);
             } else {
-                Toast.makeText(this, R.string.toast_open_error, Toast.LENGTH_SHORT).show();
-                // Crouton.showText(this, R.string.toast_open_error, Style.ALERT);
+                mReadOnly = true;
+                binding.editor.setEnabled(false);
             }
+            setEditorText(text);
         } catch (OutOfMemoryError e) {
-            Toast.makeText(this, R.string.toast_memory_open, Toast.LENGTH_SHORT).show();
-            // Crouton.showText(this, R.string.toast_memory_open, Style.ALERT);
+            Crouton.showText(this, R.string.toast_memory_open, Style.ALERT);
         }
 
         return false;
+    }
+
+    protected boolean doOpenText(String text) {
+        return setEditorText(text);
+    }
+
+    private boolean setEditorText(String text) {
+        if (text != null) {
+            mInUndo = true;
+            binding.editor.setText(text);
+            mWatcher = new TextChangeWatcher();
+            RecentFiles.updateRecentList(mCurrentFilePath);
+            RecentFiles.saveRecentList(getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE));
+            mDirty = false;
+            mInUndo = false;
+            mDoNotBackup = false;
+
+
+            if (mCurrentFilePath != null && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".lua"))) {
+                if (mCurrentFilePath.endsWith(".py")) {
+                    binding.editor.updateFromSettings("py");
+                } else {
+                    binding.editor.updateFromSettings("lua");
+                }
+            } else {
+                binding.editor.updateFromSettings("");
+
+            }
+
+            updateTitle();
+            // initDrawerMenu(this);
+
+            NStorage.setSP(getApplicationContext(), "qedit.last_filename", mCurrentFilePath);
+            return true;
+        } else {
+            Toast.makeText(this, R.string.toast_open_error, Toast.LENGTH_SHORT).show();
+            // Crouton.showText(this, R.string.toast_open_error, Style.ALERT);
+            return false;
+        }
     }
 
     /**
@@ -1779,8 +1774,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         if (keyCoder == KeyEvent.KEYCODE_BACK) {
             if (searchTopBinding != null && searchTopBinding.llSearch.getVisibility() == View.VISIBLE) {
                 search();
-            } else if (((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).isAcceptingText()) {
-                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+            } else if (isKeyboardShowing) {
+                hideKeyboard();
             } else {
                 finishEdit();
             }
@@ -2065,14 +2060,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 next = text.indexOf(search);
                 if (next > -1) {
                     binding.editor.setSelection(next, next + search.length());
+                    if (!binding.editor.isFocused())
+                        binding.editor.requestFocus();
                 } else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_search_not_found, Toast.LENGTH_SHORT).show();
-                    // Crouton.showText(this, R.string.toast_search_not_found,Style.INFO);
+                    Crouton.showText(this, R.string.toast_search_not_found, Style.INFO);
                 }
             } else {
-                Toast.makeText(getApplicationContext(), R.string.toast_search_eof, Toast.LENGTH_SHORT).show();
-
-                // Crouton.showText(this, R.string.toast_search_eof, Style.INFO);
+                Crouton.showText(this, R.string.toast_search_eof, Style.INFO);
             }
         }
     }
@@ -2090,9 +2084,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         selection = binding.editor.getSelectionStart() - 1;
 
         if (search.length() == 0) {
-            Toast.makeText(getApplicationContext(), R.string.toast_search_no_input, Toast.LENGTH_SHORT).show();
-
-            //Crouton.showText(this, R.string.toast_search_no_input, Style.INFO);
+            Crouton.showText(this, R.string.toast_search_no_input, Style.INFO);
             return;
         }
 
@@ -2105,22 +2097,20 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 
         if (next > -1) {
             binding.editor.setSelection(next, next + search.length());
+            if (!binding.editor.isFocused())
+                binding.editor.requestFocus();
         } else {
             if (Settings.SEARCHWRAP) {
                 next = text.lastIndexOf(search);
                 if (next > -1) {
                     binding.editor.setSelection(next, next + search.length());
-//                    if (!binding.editor.isFocused())
-//                        binding.editor.requestFocus();
+                    if (!binding.editor.isFocused())
+                        binding.editor.requestFocus();
                 } else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_search_not_found, Toast.LENGTH_SHORT).show();
-
-                    // Crouton.showText(this, R.string.toast_search_not_found,Style.INFO);
+                    Crouton.showText(this, R.string.toast_search_not_found, Style.INFO);
                 }
             } else {
-                Toast.makeText(getApplicationContext(), R.string.toast_search_eof, Toast.LENGTH_SHORT).show();
-
-                // Crouton.showText(this, R.string.toast_search_eof, Style.INFO);
+                Crouton.showText(this, R.string.toast_search_eof, Style.INFO);
             }
         }
     }
@@ -2435,13 +2425,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     private void hideKeyboard() {
-        try {
-            if (imm.isAcceptingText()) {
-                imm.hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
-            }
-        } catch (NullPointerException e) {
-            // do nothing
-        }
+        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
     }
 
     /**

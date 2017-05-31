@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -39,7 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
-import static com.quseit.texteditor.FolderUtil.sortTypeByName;
+import static com.quseit.util.FolderUtil.sortTypeByName;
 
 public class TedLocalActivity extends Activity implements Constants {
     private static final String TAG = "local";
