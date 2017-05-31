@@ -178,4 +178,6 @@
     <string name="choose_ttf">选择字体文件(.ttf)</string>
     <string name="explorer">文件夹</string>
     <string name="undo">UNDO</string>
+    <string name="new_script">新建脚本</string>
+    <string name="enter_name_hint">请输入文件名</string>
 </resources>

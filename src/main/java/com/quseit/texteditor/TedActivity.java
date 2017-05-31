@@ -49,6 +49,7 @@ import com.quseit.texteditor.common.TextFileUtils;
 import com.quseit.texteditor.databinding.LayoutEditorBinding;
 import com.quseit.texteditor.databinding.SearchTopBinding;
 import com.quseit.texteditor.databinding.WidgetSaveBinding;
+import com.quseit.texteditor.ui.adapter.bean.PopupItemBean;
 import com.quseit.texteditor.ui.view.EnterDialog;
 import com.quseit.texteditor.ui.view.NewEditorPopUp;
 import com.quseit.texteditor.undo.TextChangeWatcher;
@@ -143,6 +144,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         initData();
         initListener();
         initFiles();
+        readRecent();
     }
 
     @Override
@@ -221,10 +223,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     public void onDestroy() {
         // stopQPyService(this);
         super.onDestroy();
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("LAST_OPEN", mCurrentFilePath);
+        editor.apply();
         String code = NAction.getCode(this);
-
         if (code.equals("qedit")) {
-
             MyApp.getInstance().exit();
         }
     }
@@ -314,33 +318,40 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             @Override
             public void onClick(View v) {
                 if (editorPopUp == null) {
-                    editorPopUp = new NewEditorPopUp(TedActivity.this);
-                    editorPopUp.initListener(new NewEditorPopUp.AddClick() {
+                    List<PopupItemBean> itemBeanList = new ArrayList<>();
+                    itemBeanList.add(new PopupItemBean(getResources().getString(R.string.empty_file), new OnClickListener() {
                         @Override
-                        public void blankFile() {
+                        public void onClick(View v) {
                             newContent();
+                            editorPopUp.dismiss();
                         }
-
+                    }));
+                    itemBeanList.add(new PopupItemBean(getString(R.string.script), new OnClickListener() {
                         @Override
-                        public void newScript() {
-
+                        public void onClick(View v) {
+                            newScript();
+                            editorPopUp.dismiss();
                         }
-
+                    }));
+                    itemBeanList.add(new PopupItemBean(getString(R.string.webapp_project), new OnClickListener() {
                         @Override
-                        public void webApp() {
+                        public void onClick(View v) {
                             newProject(WEB_PROJECT);
                         }
-
+                    }));
+                    itemBeanList.add(new PopupItemBean(getString(R.string.console_app_project), new OnClickListener() {
                         @Override
-                        public void consoleApp() {
+                        public void onClick(View v) {
                             newProject(CONSOLE_PROJECT);
                         }
-
+                    }));
+                    itemBeanList.add(new PopupItemBean(getString(R.string.kivy_app_project), new OnClickListener() {
                         @Override
-                        public void kivyApp() {
+                        public void onClick(View v) {
                             newProject(KIVY_PROJECT);
                         }
-                    });
+                    }));
+                    editorPopUp = new NewEditorPopUp(TedActivity.this, itemBeanList);
                 }
                 editorPopUp.show(binding.rlTop);
             }
@@ -424,6 +435,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 }
                 binding.searchBottom.rlSearchBottom.setVisibility(View.VISIBLE);
                 searchTopBinding.llSearch.setVisibility(View.VISIBLE);
+                searchTopBinding.textSearch.requestFocus();
             }
         });
         binding.ibUndo.setOnClickListener(new OnClickListener() {
@@ -514,6 +526,15 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             }
 
         }
+    }
+
+    private void readRecent() {
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        String path = preferences.getString("LAST_OPEN", "");
+        if (path.equals("")) {
+            return;
+        }
+        doOpenFile(new File(path), false);
     }
 
     public static void start(Context context) {
@@ -1160,6 +1181,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     protected void readIntent() {
         readIntent(getIntent());
     }
+
     protected void readIntent(Intent intent) {
         String action;
         File file;
@@ -1568,6 +1590,34 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         promptSaveDirty();
     }
 
+    private void newScript() {
+        new EnterDialog(this)
+                .setTitle(getString(R.string.new_script))
+                .setHint(getString(R.string.enter_name_hint))
+                .setConfirmListener(new EnterDialog.ClickListener() {
+                    @Override
+                    public boolean OnClickListener(String name) {
+                        String fileName = name + ".py";
+                        File file = new File(CONF.ABSOLUTE_PATH + "/" + CONF.DFROM_QPY2 + "/" + fileName);
+                        if (file.exists()) {
+                            Toast.makeText(getApplicationContext(), R.string.file_exists, Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
+                        newContent();
+                        try {
+                            file.createNewFile();
+                            mCurrentFilePath = file.getAbsolutePath();
+                            doOpenFile(file, false);
+                            return true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                    }
+                })
+                .show();
+    }
+
     /**
      * Runs the after save to complete
      */
@@ -1779,11 +1829,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             } else {
                 finishEdit();
             }
-//            else if (Settings.UNDO && Settings.BACK_BTN_AS_UNDO) {
-//                if (!undo()) {
-//                    warnOrQuit();
-//                }
-//            }
             return true;
         } else if (isCtr) {
             switch (keyCoder) {
@@ -1891,18 +1936,19 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                         finish();
                     }
                 } else {
-                    Intent intent = getIntent();
-                    String action = intent.getAction();
-                    if (action == null) {
-                        newContent();
-                    } else {
-                        if (mDirty) {
-                            finishWithoutSave();
-                        } else {
-
-                            finish();
-                        }
-                    }
+                    finish();
+//                    Intent intent = getIntent();
+//                    String action = intent.getAction();
+//                    if (action == null) {
+//                        newContent();
+//                    } else {
+//                        if (mDirty) {
+//                            finishWithoutSave();
+//                        } else {
+//
+//                            finish();
+//                        }
+//                    }
                 }
             }
         }
@@ -2033,6 +2079,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 binding.returnBarBox.setVisibility(View.VISIBLE);
                 break;
         }
+
+        if (widgetSaveBinding.getRoot().getVisibility() == View.VISIBLE) {
+            widgetSaveBinding.getRoot().setVisibility(View.GONE);
+        }
+        binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboard);
+        binding.editor.setEnabled(true);
     }
 
     /**
@@ -2055,6 +2107,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         next = text.indexOf(search, selection);
         if (next > -1) {
             binding.editor.setSelection(next, next + search.length());
+            if (!binding.editor.isFocused())
+                binding.editor.requestFocus();
         } else {
             if (Settings.SEARCHWRAP) {
                 next = text.indexOf(search);

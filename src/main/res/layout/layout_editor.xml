@@ -137,7 +137,7 @@
                 <ImageButton
                     android:id="@+id/play_btn"
                     style="@style/editor_bottom_btn"
-                    android:src="@drawable/ic_editor_start"/>
+                    android:src="@drawable/ic_editor_run"/>
 
                 <ImageButton
                     android:id="@+id/ib_search"
