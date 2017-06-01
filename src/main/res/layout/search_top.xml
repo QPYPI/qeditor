@@ -7,6 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
         android:background="@color/toolbar"
+        android:clickable="true"
         android:gravity="center_vertical"
         android:padding="5dp">
 
@@ -19,7 +20,6 @@
             android:src="@drawable/ic_arrow_back_white"/>
 
         <EditText
-            android:textColor="#FFF"
             android:id="@+id/textSearch"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -29,6 +29,7 @@
             android:drawablePadding="8dp"
             android:hint="@string/ui_hint_search"
             android:inputType="text"
+            android:textColor="#FFF"
             android:textColorHint="@color/text_color_hint"/>
 
         <ImageButton

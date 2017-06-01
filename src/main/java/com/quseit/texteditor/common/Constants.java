@@ -113,7 +113,7 @@ public interface Constants {
      */
     public static final String PREFERENCE_SEARCHWRAP          = "search_wrap";
     /**
-     * Preference tag to retrieve the search match case ( = {@value} )
+     * Preference tag to retrieve the setSearchState match case ( = {@value} )
      */
     public static final String PREFERENCE_SEARCH_MATCH_CASE   = "search_match_case";
     /**

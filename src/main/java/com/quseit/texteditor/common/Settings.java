@@ -21,9 +21,9 @@ public class Settings implements Constants {
 	/** color setting */
 	public static int COLOR = COLOR_CLASSIC;
 
-	/** when search reaches the end of a file, search wrap */
+	/** when setSearchState reaches the end of a file, setSearchState wrap */
 	public static boolean SEARCHWRAP = false;
-	/** only search for matchin case */
+	/** only setSearchState for matchin case */
 	public static boolean SEARCHMATCHCASE = false;
 
 	/** Text size setting */

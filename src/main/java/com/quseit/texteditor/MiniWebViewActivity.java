@@ -55,16 +55,37 @@ import android.widget.Toast;
 import org.markdown4j.Markdown4jProcessor;
 
 public class MiniWebViewActivity extends BaseActivity implements OnTouchListener, Handler.Callback  {
-	private static final String TAG = "search";
+	private static final String TAG = "setSearchState";
     private static final int VOICE_RECOGNITION_REQUEST_CODE = 1235;  
-    private final Handler handler = new Handler(this);
     private static final int CLICK_ON_WEBVIEW = 1;
     private static final int CLICK_ON_URL = 2;
-    
+    protected final BroadcastReceiver playOrDownloadReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d(TAG, "downloadReceiver");
+			String act = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL1);
+			String url = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL2);
+
+			if (act.equals("play")) {
+				playFromRemote(url);
+
+			} else if (act.equals("playgw")) {
+				playFromGW(url);
+
+			} else if (act.equals("installqpylib")) {
+
+			} else {
+				String title = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL3);
+				String cat = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL4);
+
+		    	downloadReceiver(title, url, cat);
+			}
+		}
+    };
+    private final Handler handler = new Handler(this);
     protected int limit = 30;
     protected int page = 1;
     protected boolean myload = true;
-    protected int exitCount = 0;
 
 //    TextItem curTextItem = null;
 
@@ -72,7 +93,19 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
 
     
 //	private ItemAdapter adapter;
-	
+    protected int exitCount = 0;
+	@SuppressLint("HandlerLeak")
+	private Handler searchHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			String term = (String)msg.obj;
+
+			final EditText searchInput = (EditText)findViewById(R.id.url_input);
+			searchInput.setText(term);
+			doSearch(null);
+		}
+	};
+
     @SuppressWarnings("deprecation")
 	@TargetApi(3)
 	@Override
@@ -82,7 +115,7 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
         setTitle(R.string.info_browser);
         //initWidgetTabItem(10);
 
-        
+
     	ListView listView = (ListView)findViewById(android.R.id.list);
     	listView.addHeaderView(LayoutInflater.from(this).inflate(R.layout.v_tubebook_wrap, null));
     	listView.setDivider(new ColorDrawable(getResources().getColor(R.color.cgrey6)));
@@ -90,10 +123,10 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
     	listView.setCacheColorHint(0);
 //        adapter = new ItemAdapter(this);
 //        listView.setAdapter(adapter);
-        
+
         //LinearLayout sb = (LinearLayout)findViewById(R.id.setting_box);
         //sb.setVisibility(View.GONE);
-        
+
     	//adapter.add(new TextItem(getString(R.string.play_from_website)));
 
         //listView.setVisibility(View.GONE);
@@ -111,47 +144,47 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
     	        }
     	    });
     	}
-    	
-		if (act!=null && act.equals("search")) {
+
+		if (act!=null && act.equals("setSearchState")) {
 			bBar.setVisibility(View.GONE);
 			//initAD(TAG);
-		
+
 			String term = getIntent().getStringExtra(com.quseit.config.CONF.EXTRA_CONTENT_URL2);
 	    	termT.setText(term);
 	    	doSearch(null);
-	    	
+
 			EditText t = (EditText)findViewById(R.id.url_input);
-			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); 
+			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 			//t.setText(null);
 			imm.hideSoftInputFromWindow(t.getWindowToken(), 0);
 			t.clearFocus();
 		}  else {
 			bBar.setVisibility(View.VISIBLE);
 		}
-		    	
+
     	// check network
 
 		// display input
     	//View tl = findViewById(R.id.topline);
     	//tl.setVisibility(View.GONE);
-    	
+
     	//EditText termT = (EditText)findViewById(R.id.url_input);
     	//termT.setSelected(true);
     	//termT.requestFocus();
-		
+
     	// webview
 
     	startWV();
-    	
+
     	String sAct = getIntent().getStringExtra(com.quseit.config.CONF.EXTRA_CONTENT_URL1);
     	String term = getIntent().getStringExtra(com.quseit.config.CONF.EXTRA_CONTENT_URL2);
 		final EditText searchInput = (EditText) findViewById(R.id.url_input);
 
 		if (searchInput!=null) {
-	    	if (sAct!=null && sAct.equals("search")) {
+	    	if (sAct!=null && sAct.equals("setSearchState")) {
 				searchInput.setText(term);
 				doSearch(null);
-	    	} 
+	    	}
 	    	searchInput.setOnKeyListener(new OnKeyListener() {
 	    		@Override
 	    		public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -164,14 +197,14 @@ public class MiniWebViewActivity extends BaseActivity implements OnTouchListener
 	    		}
 	    	});
 		}
-    	
+
 		//disNotify(TAG);
-        
+
 IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 
 		registerReceiver(playOrDownloadReceiver, filter);
     }
-    
+
     @Override
 	public void onDestroy() {
     	super.onDestroy();
@@ -247,7 +280,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 							e.printStackTrace();
 		                	Toast.makeText(getApplicationContext(), R.string.no_videos_found, Toast.LENGTH_LONG).show();
 						}
-	                	
+
 	                }
 	                @Override
 	                public void onFailure(Throwable error) {
@@ -265,29 +298,16 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
     		Toast.makeText(getApplicationContext(), R.string.need_network, Toast.LENGTH_SHORT).show();
     	}
     }
-    protected final BroadcastReceiver playOrDownloadReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Log.d(TAG, "downloadReceiver");
-			String act = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL1);
-			String url = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL2);
-
-			if (act.equals("play")) {
-				playFromRemote(url);
-				
-			} else if (act.equals("playgw")) {
-				playFromGW(url);
-				
-			} else if (act.equals("installqpylib")) {
-				
-			} else {
-				String title = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL3);
-				String cat = intent.getExtras().getString(com.quseit.config.CONF.EXTRA_CONTENT_URL4);
-	
-		    	downloadReceiver(title, url, cat);
-			}
-		}
-    };
+    
+//    @Override
+//    public int createLayout() {
+//        return R.layout.gd_content_normal;
+//    }
+    
+//    @Override
+//	public void onConfigurationChanged(Configuration newConfig) {
+//    	super.onConfigurationChanged(newConfig);
+//    }
 
     @SuppressWarnings("deprecation")
 	public void downloadReceiver(final String title, final String addr, final String cat){
@@ -299,15 +319,15 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 		try {
 			if (root.equals("")) {
 				targetFile = new File(FileHelper.getBasePath(CONF.BASE_PATH, "Download"), cat+"/"+title+xx);
-	
+
 			} else {
 				targetFile = new File(FileHelper.getABSPath(root+"/"+cat+"/"), title+xx);
 			}
-			
+
 			if (targetFile.exists()) {
 	    		WBase.setTxtDialogParam(R.drawable.alert_dialog_icon, R.string.confirm_title, MessageFormat.format(getString(R.string.confirm_download_target_exitst), cat, title), new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface arg0, int arg1) {	
+					public void onClick(DialogInterface arg0, int arg1) {
 						// TODO: continue download
 						//tbdownload(title, addr, cat);
 					}
@@ -316,7 +336,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 					}
-	    			
+
 	    		});
 	    		showDialog(DialogBase.DIALOG_YES_NO_LONG_MESSAGE+dialogIndex);
 	    		dialogIndex++;
@@ -325,7 +345,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 				File downloadFile;
 				downloadFile = new File(FileHelper.getBasePath(CONF.BASE_PATH, "tmp"), cat+"_"+title+xx);
 				if (downloadFile.exists()) {
-					
+
 		    		WBase.setTxtDialogParam(R.drawable.alert_dialog_icon, R.string.confirm_title, MessageFormat.format(getString(R.string.confirm_download),cat, title), new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface arg0, int arg1) {
@@ -350,16 +370,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 
         //download(dTitle, dLink, dArtist, dAlbum, dPlay, dOrgLink, dQuality, dCompletedSize, dIsNew, dExt);
     }
-    
-//    @Override
-//    public int createLayout() {
-//        return R.layout.gd_content_normal;
-//    }
-    
-//    @Override
-//	public void onConfigurationChanged(Configuration newConfig) {
-//    	super.onConfigurationChanged(newConfig);
-//    }
+
     /**
      * Start the WebView
      */
@@ -382,17 +393,17 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 
 				//Toast.makeText(getApplicationContext(), "Download(mimetype:"+mimetype+")(contentDisposition:"+contentDisposition+")(contentLength:"+contentLength+")(dir:"+dir+")(file:"+filename+"):"+url, Toast.LENGTH_LONG).show();
 				//Log.d(TAG, "Download(mimetype:"+mimetype+")(contentDisposition:"+contentDisposition+")(contentLength:"+contentLength+")(dir:"+dir+")(file:"+filename+"):"+url);
-			
-    	    	EditText termT = (EditText)findViewById(R.id.url_input);    	
+
+    	    	EditText termT = (EditText)findViewById(R.id.url_input);
 
     			WebBackForwardList mWebBackForwardList = wv.copyBackForwardList();
     			try {
 	    			String historyUrl = mWebBackForwardList.getItemAtIndex(mWebBackForwardList.getCurrentIndex()).getUrl();
-	
+
 	    	    	termT.setText(historyUrl);
     			} catch (Exception e) {
     			}
-    	    	
+
     	    	// Download confirm
     	        /*String root = NAction.getDefaultRoot(getApplicationContext());
     	        String rootDir;
@@ -410,10 +421,10 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 	    					new DialogInterface.OnClickListener() {
 	    						@Override
 	    						public void onClick(DialogInterface dialog, int which) {
-	    					        AlertDialog ad = (AlertDialog) dialog;  
+	    					        AlertDialog ad = (AlertDialog) dialog;
 	    					        EditText t = (EditText) ad.findViewById(R.id.editText_prompt);
 	    					        String content = t.getText().toString();
-	    					        
+
 	    					        String ext = FileHelper.getExt(content, "dat");
 	    					        String title = content.substring(0, content.lastIndexOf("."+ext));
 	    					        downloadReceiver(title, url,ext);
@@ -422,7 +433,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 	    			showDialog(DialogBase.DIALOG_TEXT_ENTRY+dialogIndex);
 	    			dialogIndex++;
     			/*} catch (Exception e) {
-    				
+
     			}*/
 
 
@@ -445,7 +456,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
     				mediaUrl = "file:///android_asset/mbox/md3_zh.html";
     			}
             }
-            
+
     		/*if (mediaUrl.equals("")) {
     			mediaUrl = CONF.MEDIA_LINK;
     		}*/
@@ -455,7 +466,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 				html5file = "http://play.qpython.com/mna8-video-zh.php";
 			}*/
             /**
-             * Convert the markdown to HTML for displaying in the WebView 
+             * Convert the markdown to HTML for displaying in the WebView
              */
             if(mediaUrl.endsWith(".md")){
 				try {
@@ -469,12 +480,12 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 					e.printStackTrace();
 				}
             }else{
-            	EditText termT = (EditText)findViewById(R.id.url_input);    	
+            	EditText termT = (EditText)findViewById(R.id.url_input);
             	termT.setText(mediaUrl);
             	loadurl(wv, mediaUrl);
             }
     	/*} else {
-    		
+
 			String html5file = "file:///android_asset/mbox/md3.html";
     		String lang = NUtil.getLang();
 
@@ -485,14 +496,15 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
             if (i.getData() != null) {
             	html5file = i.getDataString();
             	Toast.makeText(getApplicationContext(), R.string.need_network, Toast.LENGTH_SHORT).show();
-            } 
-            
-	    	EditText termT = (EditText)findViewById(R.id.url_input);    	
+            }
+
+	    	EditText termT = (EditText)findViewById(R.id.url_input);
 	    	termT.setText(html5file);
 
 			loadurl(wv, html5file);
     	}*/
     }
+
     private String readFile(String pathname) throws IOException {
 
         File file = new File(pathname);
@@ -501,7 +513,7 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
         String lineSeparator = System.getProperty("line.separator");
 
         try {
-            while(scanner.hasNextLine()) {        
+            while(scanner.hasNextLine()) {
                 fileContents.append(scanner.nextLine() + lineSeparator);
             }
             return fileContents.toString();
@@ -511,24 +523,24 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
     }
 
 	@SuppressWarnings("deprecation")
-	@Override  
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == VOICE_RECOGNITION_REQUEST_CODE) {
 			//其他Intent返回的结果
 			final EditText searchInput = (EditText)findViewById(R.id.url_input);
 
 			if (data!=null) {
-	            final ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);  
+	            final ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 	            if (results!=null) {
-	            	
+
 	        		WBase.setSingleChoiceDialogParam(R.drawable.alert_dialog_icon, R.string.mp3_opt, results,
 	        				new DialogInterface.OnClickListener() {
 	        					@Override
 	        					public void onClick(DialogInterface dialog, int which) {
 	        						searchInput.setText(results.get(which));
-	        						
+
 	        						doSearch(null);
-	        						
+
 	        						dialog.dismiss();
 	        					}
 	        				},new DialogInterface.OnClickListener() {
@@ -540,20 +552,20 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
 	        						dialog.dismiss();
 	        					}
 	        				},null);
-	        		
+
 	                showDialog(DialogBase.DIALOG_SINGLE_CHOICE+dialogIndex);
 	                dialogIndex = dialogIndex+1;
-	                
+
 	            } else {
 	            	Toast.makeText(MiniWebViewActivity.this, R.string.search_no_data, Toast.LENGTH_LONG).show();
 	            }
 			}
 		}
-        super.onActivityResult(requestCode, resultCode, data);  
-    }      
-
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    
     public void doSearch(View v) {
-    	EditText termT = (EditText)findViewById(R.id.url_input);    	
+    	EditText termT = (EditText)findViewById(R.id.url_input);
     	String url;
     	if (termT == null || termT.getText().toString().equals("")) {
     		Toast.makeText(getApplicationContext(), R.string.err_need_url, Toast.LENGTH_SHORT).show();
@@ -563,50 +575,25 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
     			url = "http://"+url;
     			termT.setText(url);
     		}
-    		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); 
+    		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
     		//t.setText(null);
     		imm.hideSoftInputFromWindow(termT.getWindowToken(), 0);
     		termT.clearFocus();
-    		
+
 			loadurl(wv, url);
     	}
     }
-    
+
     public void doClear(View v) {
     	EditText termT = (EditText)findViewById(R.id.url_input);
     	termT.setText("");
     }
+
     public void onInputClicked(View v) {
     	EditText termT = (EditText)findViewById(R.id.url_input);
     	termT.setHint("");
     }
 
-	class MyBean extends Bean {
-
-		public MyBean(Context context) {
-			super(context);
-		}
-		
-	    public void search(String term) {
-			Message msg = new Message();
-			msg.obj = term;
-			searchHandler.sendMessage(msg);
-
-	    	//Toast.makeText(context, "searched:"+term, Toast.LENGTH_SHORT).show();
-	    }
-	}
-	@SuppressLint("HandlerLeak")
-	private Handler searchHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			String term = (String)msg.obj;
-			
-			final EditText searchInput = (EditText)findViewById(R.id.url_input);
-			searchInput.setText(term);
-			doSearch(null);
-		}
-	};
-	
 	public void onPlay(View v) {
 	}
 	
@@ -617,28 +604,26 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
     			WebBackForwardList mWebBackForwardList = wv.copyBackForwardList();
     			String historyUrl = mWebBackForwardList.getItemAtIndex(mWebBackForwardList.getCurrentIndex()-1).getUrl();
 
-    	    	EditText termT = (EditText)findViewById(R.id.url_input);    	
+    	    	EditText termT = (EditText)findViewById(R.id.url_input);
     	    	termT.setText(historyUrl);
 
     			wv.goBack();
     			return false;
     		} else {
-        		
+
     			finish();
 
-        		
+
     		}
-    		
+
     	}
     	return super.onKeyDown(keycode, event);
     }
-
-
+	
 	public void onSearch(View v) {
 		doSearch(null);
 	}
 
-	
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (v.getId() == R.id.wv && event.getAction() == MotionEvent.ACTION_DOWN){
@@ -660,6 +645,21 @@ IntentFilter filter = new IntentFilter(".MiniWebViewActivity");
         }
         return false;
     }
+
+	class MyBean extends Bean {
+
+		public MyBean(Context context) {
+			super(context);
+		}
+
+	    public void search(String term) {
+			Message msg = new Message();
+			msg.obj = term;
+			searchHandler.sendMessage(msg);
+
+	    	//Toast.makeText(context, "searched:"+term, Toast.LENGTH_SHORT).show();
+	    }
+	}
 
 
 	

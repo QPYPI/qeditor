@@ -84,49 +84,86 @@ import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.sho
 
 public class TedActivity extends Activity implements Constants, TextWatcher, OnClickListener {
     public static final  String TAG             = "TED";
+    /**
+     * Defines the keyboard layout
+     *
+     * @author kyle kersey http://developer.android.com/reference/android/view/KeyEvent.html
+     */
+    // @SuppressLint("NewApi")
+
+    // public boolean onKeyShortcut(int keyCode, KeyEvent event){
+    //
+    //
+    // Log.d(TAG, "TAG INFORMATION keycode:"+keyCode);
+    // //TODO
+    //
+    // /*switch (keyCode) {
+    // case KeyEvent.KEYCODE_TAB:
+    // rightIndent();
+    // break;
+    // default:
+    // break;
+    // } */
+    // return false;
+    // }
+
+
+    protected static final int SCRIPT_EXEC_PY = 2235;
     private static final String WEB_PROJECT     = "web";
     private static final String CONSOLE_PROJECT = "console";
     private static final String KIVY_PROJECT    = "kivy";
-
-    private LayoutEditorBinding binding;
-    private WidgetSaveBinding   widgetSaveBinding;
-    private SearchTopBinding    searchTopBinding;
-
+    final int DOC_FLAG = 10001;
     protected String mCurrentFilePath;
     protected String mCurrentFileName;
-
-    private   NewEditorPopUp editorPopUp;
     /**
      * the runnable to run after a save
      */
     protected Runnable       mAfterSave; // Mennen ? Axe ?
     protected boolean        mDirty;
-
     /**
      * is read only
      */
     protected boolean mReadOnly;
-
     /**
      * Undo watcher
      */
     protected TextChangeWatcher mWatcher;
-
     protected boolean mInUndo;
-
     protected boolean mWarnedShouldQuit;
-
     protected boolean mDoNotBackup;
-
-    private   boolean isKeyboardShowing;
     /**
      * are we in a post activity result ?
      */
     protected boolean mReadIntent;
-
-    final int DOC_FLAG = 10001;
     boolean IS_DOC_BACK = false;
+    private LayoutEditorBinding binding;
+    private WidgetSaveBinding   widgetSaveBinding;
+    private SearchTopBinding    searchTopBinding;
+    private   NewEditorPopUp editorPopUp;
+    private   boolean isKeyboardShowing;
     private Animator anim;
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, TedActivity.class);
+        context.startActivity(starter);
+    }
+
+    public static void start(Context context, String text) {
+        Intent starter = new Intent(context, TedActivity.class);
+        starter.putExtra("TEXT", text);
+        context.startActivity(starter);
+    }
+
+    public static void start(Context context, String action, Uri path) {
+        Intent starter = new Intent(context, TedActivity.class);
+        starter.setAction(action);
+        starter.setData(path);
+        context.startActivity(starter);
+    }
+
+    private static String getFileName(String path) {
+        return path.substring(path.lastIndexOf('/') + 1);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,7 +234,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 || mCurrentFilePath.endsWith(".lua") || mCurrentFilePath.endsWith(".sh"))) {
             if (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".sh")
                     || mCurrentFilePath.endsWith(".lua")) {
-                pBtn.setImageResource(R.drawable.ic_go);
+                pBtn.setImageResource(R.drawable.ic_editor_run);
             } else {
                 pBtn.setImageResource(R.drawable.ic_from_website);
             }
@@ -429,6 +466,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 if (!binding.vsSearchTop.isInflated()) {
                     searchTopBinding = DataBindingUtil.bind(binding.vsSearchTop.getViewStub().inflate());
                     initSearchBarListener();
+                    setSearchState();
                 }
                 if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
                     startAnim();
@@ -476,11 +514,14 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         });
     }
 
-
     private void initFiles() {
         String code = NAction.getCode(this);
         String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath()
                 + "/" + CONF.BASE_PATH;
+        File root = new File(baseDir);
+        if (!(root.exists() && root.isDirectory())) {
+            root.mkdir();
+        }
         String path = baseDir + (code.contains("3") ? "/snippets3" : "/snippets");
         File folder = new File(path);
         if (!(folder.exists() && folder.isDirectory())) {
@@ -537,24 +578,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         doOpenFile(new File(path), false);
     }
 
-    public static void start(Context context) {
-        Intent starter = new Intent(context, TedActivity.class);
-        context.startActivity(starter);
-    }
-
-    public static void start(Context context, String text) {
-        Intent starter = new Intent(context, TedActivity.class);
-        starter.putExtra("TEXT", text);
-        context.startActivity(starter);
-    }
-
-    public static void start(Context context, String action, Uri path) {
-        Intent starter = new Intent(context, TedActivity.class);
-        starter.setAction(action);
-        starter.setData(path);
-        context.startActivity(starter);
-    }
-
     /**
      * Create a list of snippet
      */
@@ -597,7 +620,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         });
         builder.show();
     }
-
 
     /**
      * @param snippetName WEB_PROJECT/CONSOLE_PROJECT/KIVY_PROJECT
@@ -752,6 +774,16 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         alert.show();
     }
 
+//    @Override
+//    public int createLayout() {
+//        if (NAction.getCode(getApplicationContext()).contains("qedit")) {
+//
+//            return R.layout.gd_content_drawer;
+//        } else {
+//            return R.layout.gd_content_normal;
+//        }
+//    }
+
     /**
      * The contextual action bar (CAB)
      *
@@ -825,7 +857,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     public void setSearch() {
-        search();
+        setSearchState();
 
         int startSelection = binding.editor.getSelectionStart();
         int endSelection = binding.editor.getSelectionEnd();
@@ -833,20 +865,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         if (selectedText.length() != 0) {
             searchTopBinding.textSearch.setText(selectedText);
         }
-    }
-
-//    @Override
-//    public int createLayout() {
-//        if (NAction.getCode(getApplicationContext()).contains("qedit")) {
-//
-//            return R.layout.gd_content_drawer;
-//        } else {
-//            return R.layout.gd_content_normal;
-//        }
-//    }
-
-    private static String getFileName(String path) {
-        return path.substring(path.lastIndexOf('/') + 1);
     }
 
     private void initDrawerMenu(Context context) {
@@ -907,7 +925,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 //
 //			for (int i=0;i<mList.size();i++) {
 //				String _x = mList.get(i);
-//				
+//
 //				LongTextItem sItem = new LongTextItem(_x);
 //				sItem.setTag(0, _x);
 //				adapter.add(sItem);
@@ -917,7 +935,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 //        adapter.notifyDataSetChanged();
 //        drawerPanent.addView(view);
     }
-
 
     /**
      * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
@@ -929,6 +946,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         //Log.v("TED", binding.editor.getText().toString());
     }
 
+    /**
+     * @see android.app.Activity#onConfigurationChanged(android.content.res.Configuration)
+     */
+    /*
+     * public void onConfigurationChanged(Configuration newConfig) { super.onConfigurationChanged(newConfig); if
+	 * (CONF.DEBUG) Log.d(TAG, "onConfigurationChanged"); }
+	 */
 
     /**
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -974,22 +998,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
     }
 
-    /**
-     * @see android.app.Activity#onConfigurationChanged(android.content.res.Configuration)
-     */
-    /*
-     * public void onConfigurationChanged(Configuration newConfig) { super.onConfigurationChanged(newConfig); if
-	 * (CONF.DEBUG) Log.d(TAG, "onConfigurationChanged"); }
-	 */
-
-    /**
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        return true;
-    }
-
 	/*
      * protected void prepareQuickActionBarM(int flag) { mBarM = new QuickActionBar(this); mBarM.addQuickAction(new
 	 * MyQuickAction(this, R.drawable.ic_new_a, R.string.info_new)); mBarM.addQuickAction(new MyQuickAction(this,
@@ -1001,6 +1009,14 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 	 * "conf_manul_link"); if (link.equals("")) { link = CONF.MANUAL_LINK; }
 	 * startActivity(NAction.openRemoteLink(getApplicationContext(), link)); break; default: } } };
 	 */
+
+    /**
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        return true;
+    }
 
     /**
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
@@ -1035,7 +1051,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         return true;
     }
 
-
     /**
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
      */
@@ -1059,7 +1074,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 openRecentFile();
                 break;
             case MENU_ID_SEARCH:
-                search();
+                setSearchState();
                 break;
             case MENU_ID_SETTINGS:
                 settingsActivity();
@@ -1132,17 +1147,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     * @see android.text.TextWatcher#afterTextChanged(android.text.Editable)
-     */
-    @Override
-    public void afterTextChanged(Editable s) {
-        if (!mDirty) {
-            mDirty = true;
-            updateTitle();
-        }
-    }
-
-    /**
      * @see android.app.Activity#onKeyUp(int, android.view.KeyEvent)
      */
 
@@ -1160,13 +1164,24 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     // }
 
     /**
+     * @see android.text.TextWatcher#afterTextChanged(android.text.Editable)
+     */
+    @Override
+    public void afterTextChanged(Editable s) {
+        if (!mDirty) {
+            mDirty = true;
+            updateTitle();
+        }
+    }
+
+    /**
      * @see OnClickListener#onClick(View)
      */
     @Override
     public void onClick(View v) {
         mWarnedShouldQuit = false;
 //        if (v.getId() == R.id.buttonSearchClose) {
-//            search();
+//            setSearchState();
 //        } else if (v.getId() == R.id.buttonSearchNext) {
 //            searchNext();
 //        } else if (v.getId() == R.id.buttonSearchPrev) {
@@ -1740,31 +1755,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
     }
 
-    /**
-     * Quit the app (user pressed back)
-     */
-    protected void quit() {
-        final String code = NAction.getCode(this);
-
-        mAfterSave = new Runnable() {
-            @Override
-            public void run() {
-                if (code.contains("qedit")) {
-
-                } else {
-                    if (mCurrentFilePath == null) {
-
-                        finish();
-                    } else {
-                        newContent();
-                    }
-                }
-            }
-        };
-
-        promptSaveDirty();
-    }
-
 //    @Override
 //    public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
 //        switch (item.getItemId()) {
@@ -1801,6 +1791,33 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 //        return super.onHandleActionBarItemClick(item, position);
 //    }
 
+    /**
+     * Quit the app (user pressed back)
+     */
+    protected void quit() {
+        final String code = NAction.getCode(this);
+
+        mAfterSave = new Runnable() {
+            @Override
+            public void run() {
+                if (code.contains("qedit")) {
+
+                } else {
+                    if (mCurrentFilePath == null) {
+
+                        finish();
+                    } else {
+                        newContent();
+                    }
+                }
+            }
+        };
+
+        promptSaveDirty();
+    }
+
+    // TODO
+
     public void onSnippets(View v) {
         int startSelection = binding.editor.getSelectionStart();
         int endSelection = binding.editor.getSelectionEnd();
@@ -1816,14 +1833,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
     }
 
-    // TODO
-
     @Override
     public boolean onKeyUp(int keyCoder, KeyEvent event) {
         boolean isCtr = event.isCtrlPressed();
         if (keyCoder == KeyEvent.KEYCODE_BACK) {
             if (searchTopBinding != null && searchTopBinding.llSearch.getVisibility() == View.VISIBLE) {
-                search();
+                setSearchState();
             } else if (isKeyboardShowing) {
                 hideKeyboard();
             } else {
@@ -1883,7 +1898,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 case KeyEvent.KEYCODE_BACK:
 
 //                    if (mSearchLayout.getVisibility() != View.GONE)
-//                        search();
+//                        setSearchState();
 //                    else if (Settings.UNDO && Settings.BACK_BTN_AS_UNDO) {
 //
 //                        if (!undo())
@@ -1891,7 +1906,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
 //                    }
                     // TODO: 2017-05-10
                 case KeyEvent.KEYCODE_SEARCH:
-                    search();
+                    setSearchState();
                     mWarnedShouldQuit = false;
                     break;
             }
@@ -2060,11 +2075,11 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     * Opens / close the search interface
+     * Opens / close the setSearchState interface
      */
-    protected void search() {
+    protected void setSearchState() {
         if (CONF.DEBUG)
-            Log.d(TAG, "search");
+            Log.d(TAG, "setSearchState");
         switch (searchTopBinding.llSearch.getVisibility()) {
             case View.GONE:
                 binding.returnBarBox.setVisibility(View.GONE);
@@ -2080,7 +2095,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                 break;
         }
 
-        if (widgetSaveBinding.getRoot().getVisibility() == View.VISIBLE) {
+        if (widgetSaveBinding != null && widgetSaveBinding.getRoot().getVisibility() == View.VISIBLE) {
             widgetSaveBinding.getRoot().setVisibility(View.GONE);
         }
         binding.ibKeyboard.setImageResource(R.drawable.ic_editor_keyboard);
@@ -2088,7 +2103,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     * Uses the user input to search a file
+     * Uses the user input to setSearchState a file
      */
     @SuppressLint("DefaultLocale")
     protected void searchNext() {
@@ -2126,7 +2141,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     * Uses the user input to search a file
+     * Uses the user input to setSearchState a file
      */
     @SuppressLint("DefaultLocale")
     protected void searchPrevious() {
@@ -2481,32 +2496,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     private void hideKeyboard() {
         ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(TedActivity.this.getCurrentFocus().getWindowToken(), 0);
     }
-
-    /**
-     * Defines the keyboard layout
-     *
-     * @author kyle kersey http://developer.android.com/reference/android/view/KeyEvent.html
-     */
-    // @SuppressLint("NewApi")
-
-    // public boolean onKeyShortcut(int keyCode, KeyEvent event){
-    //
-    //
-    // Log.d(TAG, "TAG INFORMATION keycode:"+keyCode);
-    // //TODO
-    //
-    // /*switch (keyCode) {
-    // case KeyEvent.KEYCODE_TAB:
-    // rightIndent();
-    // break;
-    // default:
-    // break;
-    // } */
-    // return false;
-    // }
-
-
-    protected static final int SCRIPT_EXEC_PY = 2235;
 
     public void callPyApi(String flag, String param, String pyCode) {
         String proxyCode = "";
