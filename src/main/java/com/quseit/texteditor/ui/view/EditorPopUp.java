@@ -23,10 +23,10 @@ import java.util.List;
  * Created by Hmei on 2017-05-18.
  */
 
-public class NewEditorPopUp {
+public class EditorPopUp {
     private PopupWindow popupWindow;
 
-    public NewEditorPopUp(Context context, final List<PopupItemBean> itemBeanList) {
+    public EditorPopUp(Context context, final List<PopupItemBean> itemBeanList) {
         FrameLayout root = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.popup_add_editor, null);
         ListView listView = (ListView) root.findViewById(R.id.list_view);
 
@@ -36,6 +36,7 @@ public class NewEditorPopUp {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 itemBeanList.get(position).getClickListener().onClick(view);
+                popupWindow.dismiss();
             }
         });
 
@@ -56,7 +57,4 @@ public class NewEditorPopUp {
         }
     }
 
-    public void dismiss() {
-        popupWindow.dismiss();
-    }
 }

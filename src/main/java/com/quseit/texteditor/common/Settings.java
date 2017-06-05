@@ -37,7 +37,7 @@ public class Settings implements Constants {
 	public static String ENCODING = ENC_UTF8;
 
 	/** Let auto save on quit be triggered */
-	public static boolean FORCE_AUTO_SAVE = false;
+	public static boolean FORCE_AUTO_SAVE = true;
 	public static boolean AUTO_SAVE_OVERWRITE = false;
 
 	/** enable fling to scroll */
@@ -90,7 +90,8 @@ public class Settings implements Constants {
 				PREFERENCE_TEXT_SIZE, "14");
 		DEFAULT_END_OF_LINE = getStringPreferenceAsInteger(settings,
 				PREFERENCE_END_OF_LINES, ("" + EOL_LINUX));
-		FORCE_AUTO_SAVE = settings.getBoolean(PREFERENCE_AUTO_SAVE, false);
+//		FORCE_AUTO_SAVE = settings.getBoolean(PREFERENCE_AUTO_SAVE, false);
+		FORCE_AUTO_SAVE = true;// 自动保存
 		AUTO_SAVE_OVERWRITE = settings.getBoolean(
 				PREFERENCE_AUTO_SAVE_OVERWRITE, false);
 		COLOR = getStringPreferenceAsInteger(settings, PREFERENCE_COLOR_THEME,

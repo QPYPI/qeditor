@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">QEdit</string>
-    <string name="app_label">QEdit</string>
-    <string name="app_name_full">QEdit（文本编辑）</string>
+    <string name="app_name">QPython</string>
+    <string name="app_label">QPython</string>
+    <string name="app_name_full">QPython</string>
     <!--  -->
     <string name="permission_internal">QEdit内部权限</string>
     <!-- Titles -->

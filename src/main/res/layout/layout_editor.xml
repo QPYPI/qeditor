@@ -152,7 +152,7 @@
 
 
                 <ImageButton
-                    android:id="@+id/handle_history"
+                    android:id="@+id/ib_snippets"
                     style="@style/editor_bottom_btn"
                     android:src="@drawable/ic_editor_snippet"
 

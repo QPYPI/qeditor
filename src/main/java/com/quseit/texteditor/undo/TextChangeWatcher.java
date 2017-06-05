@@ -11,16 +11,19 @@ import java.util.Stack;
 
 public class TextChangeWatcher implements Constants {
 
+	protected final Stack<TextChange> mChanges;
+	protected TextChange mCurrentChange;
+
 	/**
-	 * 
+	 *
 	 */
 	public TextChangeWatcher() {
-		mChanges = new Stack<TextChange>();
+		mChanges = new Stack<>();
 	}
 
 	/**
 	 * Undo the last operation
-	 * 
+	 *
 	 * @param text
 	 *            the text to undo on
 	 * @return the caret position
@@ -47,7 +50,7 @@ public class TextChangeWatcher implements Constants {
 	 * A change to the text {@linkplain s} will be made, where the
 	 * {@linkplain count} characters starting at {@linkplain start} will be
 	 * replaced by {@linkplain after} characters
-	 * 
+	 *
 	 * @param s
 	 *            the sequence being changed
 	 * @param start
@@ -56,7 +59,7 @@ public class TextChangeWatcher implements Constants {
 	 *            the number of characters that will change
 	 * @param after
 	 *            the number of characters that will replace the old ones
-	 * 
+	 *
 	 */
 	public void beforeChange(CharSequence s, int start, int count, int after) {
 		if ((mCurrentChange != null)
@@ -80,7 +83,7 @@ public class TextChangeWatcher implements Constants {
 	 * A change to the text {@linkplain s} has been made, where the
 	 * {@linkplain count} characters starting at {@linkplain start} have
 	 * replaced the substring of length {@linkplain before}
-	 * 
+	 *
 	 * @param s
 	 *            the sequence being changed
 	 * @param start
@@ -171,8 +174,5 @@ public class TextChangeWatcher implements Constants {
 		}
 		Log.d(TAG, "Current change : " + mCurrentChange.toString());
 	}
-
-	protected TextChange mCurrentChange;
-	protected final Stack<TextChange> mChanges;
 
 }

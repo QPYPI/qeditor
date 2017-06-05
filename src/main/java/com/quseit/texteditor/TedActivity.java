@@ -51,7 +51,7 @@ import com.quseit.texteditor.databinding.SearchTopBinding;
 import com.quseit.texteditor.databinding.WidgetSaveBinding;
 import com.quseit.texteditor.ui.adapter.bean.PopupItemBean;
 import com.quseit.texteditor.ui.view.EnterDialog;
-import com.quseit.texteditor.ui.view.NewEditorPopUp;
+import com.quseit.texteditor.ui.view.EditorPopUp;
 import com.quseit.texteditor.undo.TextChangeWatcher;
 import com.quseit.texteditor.widget.crouton.Crouton;
 import com.quseit.texteditor.widget.crouton.Style;
@@ -82,78 +82,71 @@ import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.sho
  * @author River
  */
 
-public class TedActivity extends Activity implements Constants, TextWatcher, OnClickListener {
-    public static final  String TAG             = "TED";
-    /**
-     * Defines the keyboard layout
-     *
-     * @author kyle kersey http://developer.android.com/reference/android/view/KeyEvent.html
-     */
-    // @SuppressLint("NewApi")
-
-    // public boolean onKeyShortcut(int keyCode, KeyEvent event){
-    //
-    //
-    // Log.d(TAG, "TAG INFORMATION keycode:"+keyCode);
-    // //TODO
-    //
-    // /*switch (keyCode) {
-    // case KeyEvent.KEYCODE_TAB:
-    // rightIndent();
-    // break;
-    // default:
-    // break;
-    // } */
-    // return false;
-    // }
-
-
-    protected static final int SCRIPT_EXEC_PY = 2235;
-    private static final String WEB_PROJECT     = "web";
-    private static final String CONSOLE_PROJECT = "console";
-    private static final String KIVY_PROJECT    = "kivy";
-    final int DOC_FLAG = 10001;
-    protected String mCurrentFilePath;
-    protected String mCurrentFileName;
+public class TedActivity extends Activity implements Constants, TextWatcher {
+    public static final String TAG      = "TED";
+    protected static final int    SCRIPT_EXEC_PY  = 2235;
+    private static final   String WEB_PROJECT     = "web";
+    private static final   String CONSOLE_PROJECT = "console";
+    private static final   String KIVY_PROJECT    = "kivy";
+    protected static boolean mReadIntent;
+    final               int    DOC_FLAG = 10001;
+    protected String            mCurrentFilePath;
+    protected String            mCurrentFileName;
     /**
      * the runnable to run after a save
      */
-    protected Runnable       mAfterSave; // Mennen ? Axe ?
-    protected boolean        mDirty;
+    protected Runnable          mAfterSave; // Mennen ? Axe ?
+    protected boolean           mDirty;
     /**
      * is read only
      */
-    protected boolean mReadOnly;
+    protected boolean           mReadOnly;
     /**
      * Undo watcher
      */
     protected TextChangeWatcher mWatcher;
-    protected boolean mInUndo;
-    protected boolean mWarnedShouldQuit;
-    protected boolean mDoNotBackup;
-    /**
-     * are we in a post activity result ?
-     */
-    protected boolean mReadIntent;
+    protected boolean           mInUndo;
+    protected boolean           mDoNotBackup;
     boolean IS_DOC_BACK = false;
+
     private LayoutEditorBinding binding;
     private WidgetSaveBinding   widgetSaveBinding;
     private SearchTopBinding    searchTopBinding;
-    private   NewEditorPopUp editorPopUp;
-    private   boolean isKeyboardShowing;
-    private Animator anim;
 
+    private EditorPopUp editorPopUp;
+    private boolean     isKeyboardShowing;
+
+    /**
+     * Empty editor
+     *
+     * @param context
+     */
     public static void start(Context context) {
         Intent starter = new Intent(context, TedActivity.class);
         context.startActivity(starter);
     }
 
+    /**
+     * Text editor
+     *
+     * @param context
+     * @param text
+     */
     public static void start(Context context, String text) {
         Intent starter = new Intent(context, TedActivity.class);
         starter.putExtra("TEXT", text);
+        starter.setAction(ACTION_WIDGET_TEXT);
+        mReadIntent = true;
         context.startActivity(starter);
     }
 
+    /**
+     * File editor
+     *
+     * @param context
+     * @param action
+     * @param path
+     */
     public static void start(Context context, String action, Uri path) {
         Intent starter = new Intent(context, TedActivity.class);
         starter.setAction(action);
@@ -161,8 +154,16 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         context.startActivity(starter);
     }
 
-    private static String getFileName(String path) {
-        return path.substring(path.lastIndexOf('/') + 1);
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        TedChangelog changeLog;
+        SharedPreferences prefs;
+
+        changeLog = new TedChangelog();
+        prefs = getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE);
+        changeLog.saveCurrentVersion(this, prefs);
     }
 
     @Override
@@ -181,155 +182,14 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         initData();
         initListener();
         initFiles();
-        readRecent();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        mReadIntent = false;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        TedChangelog changeLog;
-        SharedPreferences prefs;
-
-        changeLog = new TedChangelog();
-        prefs = getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE);
-        changeLog.saveCurrentVersion(this, prefs);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (CONF.DEBUG)
-            Log.d(TAG, "onResume");
-
-        if (mReadIntent) {
-            readIntent();
-        }
-        mReadIntent = false;
-
+        readIntent();
         updateTitle();
-        if (mCurrentFilePath != null && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".lua"))) {
-            if (mCurrentFilePath.endsWith(".py")) {
-                binding.editor.updateFromSettings("py");
-            } else {
-                binding.editor.updateFromSettings("lua");
-            }
-        } else {
-            binding.editor.updateFromSettings("");
-
-        }
-
-        ImageButton pBtn = (ImageButton) findViewById(R.id.play_btn);
-        pBtn.setVisibility(View.VISIBLE);
-
-        if (mCurrentFilePath != null
-                && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".md")
-                || mCurrentFilePath.endsWith(".html") || mCurrentFilePath.endsWith(".htm")
-                || mCurrentFilePath.endsWith(".lua") || mCurrentFilePath.endsWith(".sh"))) {
-            if (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".sh")
-                    || mCurrentFilePath.endsWith(".lua")) {
-                pBtn.setImageResource(R.drawable.ic_editor_run);
-            } else {
-                pBtn.setImageResource(R.drawable.ic_from_website);
-            }
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (CONF.DEBUG)
-            Log.d(TAG, "onPause");
-
-        if (Settings.FORCE_AUTO_SAVE && mDirty && (!mReadOnly)) {
-
-            if ((mCurrentFilePath == null) || (mCurrentFilePath.length() == 0))
-                doAutoSaveFile(true);
-            else if (Settings.AUTO_SAVE_OVERWRITE)
-                doSaveFile(mCurrentFilePath, true);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        // stopQPyService(this);
-        super.onDestroy();
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("LAST_OPEN", mCurrentFilePath);
-        editor.apply();
-        String code = NAction.getCode(this);
-        if (code.equals("qedit")) {
-            MyApp.getInstance().exit();
-        }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        readIntent(intent);
-    }
-
-    @RequiresApi(api = VERSION_CODES.LOLLIPOP)
-    private void startAnim() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int width = displayMetrics.widthPixels;
-        anim = ViewAnimationUtils.createCircularReveal(searchTopBinding.getRoot(), width, 0, 0, width);
-        anim.start();
+        updateType();
     }
 
     private void initData() {
         Settings.updateFromPreferences(getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE));
-//        if (NAction.getCode(this).contains("qedit")) {
-//            initDrawerMenu(this);
-//        }
-        mReadIntent = true;
         mWatcher = new TextChangeWatcher();
-        mWarnedShouldQuit = false;
-        mDoNotBackup = false;
-    }
-
-    private void initSearchBarListener() {
-        searchTopBinding.ibClear.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchTopBinding.textSearch.setText("");
-            }
-        });
-        searchTopBinding.ibClose.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchTopBinding.llSearch.setVisibility(View.GONE);
-                binding.searchBottom.rlSearchBottom.setVisibility(View.GONE);
-            }
-        });
-
-        binding.searchBottom.ivSearch.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchNext();
-            }
-        });
-        binding.searchBottom.buttonSearchNext.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchNext();
-            }
-        });
-
-        binding.searchBottom.buttonSearchPrev.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchPrevious();
-            }
-        });
     }
 
     private void initListener() {
@@ -360,14 +220,12 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                         @Override
                         public void onClick(View v) {
                             newContent();
-                            editorPopUp.dismiss();
                         }
                     }));
                     itemBeanList.add(new PopupItemBean(getString(R.string.script), new OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             newScript();
-                            editorPopUp.dismiss();
                         }
                     }));
                     itemBeanList.add(new PopupItemBean(getString(R.string.webapp_project), new OnClickListener() {
@@ -388,7 +246,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                             newProject(KIVY_PROJECT);
                         }
                     }));
-                    editorPopUp = new NewEditorPopUp(TedActivity.this, itemBeanList);
+                    editorPopUp = new EditorPopUp(TedActivity.this, itemBeanList);
                 }
                 editorPopUp.show(binding.rlTop);
             }
@@ -483,35 +341,19 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
             }
         });
 
+        binding.ibSnippets.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSnippets(v);
+            }
+        });
         KeyboardUtils.addKeyboardToggleListener(this, new KeyboardUtils.SoftKeyboardToggleListener() {
             @Override
             public void onToggleSoftKeyboard(boolean isVisible) {
                 isKeyboardShowing = isVisible;
             }
         });
-    }
 
-    private void initSaveWidgetListener() {
-        widgetSaveBinding.rlSave.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveContent();
-            }
-        });
-
-        widgetSaveBinding.rlSaveas.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveContentAs();
-            }
-        });
-
-        widgetSaveBinding.rlRecent.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TedLocalActivity.start(TedActivity.this, REQUEST_RECENT);
-            }
-        });
     }
 
     private void initFiles() {
@@ -569,13 +411,216 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         }
     }
 
-    private void readRecent() {
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        String path = preferences.getString("LAST_OPEN", "");
-        if (path.equals("")) {
+    /**
+     * Read the intent used to start this activity (open the text file) as well as the non configuration instance if
+     * activity is started after a screen rotate
+     */
+    protected void readIntent() {
+        readIntent(getIntent());
+    }
+
+    protected void readIntent(Intent intent) {
+        String action;
+        File file;
+
+        if (intent == null) {
+            if (CONF.DEBUG)
+                Log.d(TAG, "No intent found, use default instead");
+            doDefaultAction();
             return;
         }
-        doOpenFile(new File(path), false);
+
+        action = intent.getAction();
+        if (action == null) {
+            if (CONF.DEBUG)
+                Log.d(TAG, "Intent w/o action, default action");
+            doDefaultAction();
+        } else if ((action.equals(Intent.ACTION_VIEW)) || (action.equals(Intent.ACTION_EDIT))) {
+            try {
+                file = new File(new URI(intent.getDataString()));
+                doOpenFile(file, false);
+            } catch (URISyntaxException e) {
+                Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
+            } catch (IllegalArgumentException e) {
+                Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
+            }
+        } else if (action.equals(ACTION_WIDGET_OPEN)) {
+            try {
+                file = new File(new URI(intent.getData().toString()));
+                doOpenFile(file, intent.getBooleanExtra(EXTRA_FORCE_READ_ONLY, false));
+            } catch (URISyntaxException e) {
+                Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
+            } catch (IllegalArgumentException e) {
+                Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
+            }
+        } else if (action.equals(ACTION_WIDGET_TEXT)) {
+            doOpenText(intent.getStringExtra("TEXT"));
+            mDirty = true;
+            updateTitle();
+        } else {
+            doDefaultAction();
+        }
+    }
+
+    /**
+     * Update the window title
+     */
+    protected void updateTitle() {
+        String title;
+        String name;
+
+        name = "?";
+        if ((mCurrentFileName != null) && (mCurrentFileName.length() > 0))
+            name = mCurrentFileName;
+
+        // Log.d(TAG, "updateTitle:"+mCurrentFileName);
+
+        if (mReadOnly)
+            title = getString(R.string.title_editor_readonly, name);
+        else if (mDirty)
+            title = getString(R.string.title_editor_dirty, name);
+        else
+            title = getString(R.string.title_editor, name);
+
+        setTitle(title);
+
+        invalidateOptionsMenu();
+    }
+
+
+    private void updateType() {
+        if (mCurrentFilePath != null && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".lua"))) {
+            if (mCurrentFilePath.endsWith(".py")) {
+                binding.editor.updateFromSettings("py");
+            } else {
+                binding.editor.updateFromSettings("lua");
+            }
+        } else {
+            binding.editor.updateFromSettings("");
+        }
+        if (mCurrentFilePath != null
+                && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".md")
+                || mCurrentFilePath.endsWith(".html") || mCurrentFilePath.endsWith(".htm")
+                || mCurrentFilePath.endsWith(".lua") || mCurrentFilePath.endsWith(".sh"))) {
+            if (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".sh")
+                    || mCurrentFilePath.endsWith(".lua")) {
+                binding.playBtn.setImageResource(R.drawable.ic_editor_run);
+            } else {
+                binding.playBtn.setImageResource(R.drawable.ic_from_website);
+            }
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        mReadIntent = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        if (Settings.FORCE_AUTO_SAVE && mDirty && (!mReadOnly)) {
+//            if ((mCurrentFilePath == null) || (mCurrentFilePath.length() == 0))
+//        if (mCurrentFilePath.equals("")) {
+        doAutoSaveFile(false);
+//        } else {
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("LAST_OPEN_PATH", mCurrentFilePath);
+        editor.apply();
+//        }
+//            else if (Settings.AUTO_SAVE_OVERWRITE)
+//                doSaveFile(mCurrentFilePath, true);
+//        }
+    }
+
+    @Override
+    public void onDestroy() {
+        // stopQPyService(this);
+        super.onDestroy();
+//        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putString("LAST_OPEN", mCurrentFilePath);
+//        editor.apply();
+        String code = NAction.getCode(this);
+        if (code.equals("qedit")) {
+            MyApp.getInstance().exit();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        readIntent(intent);
+    }
+
+    @RequiresApi(api = VERSION_CODES.LOLLIPOP)
+    private void startAnim() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        Animator anim = ViewAnimationUtils.createCircularReveal(searchTopBinding.getRoot(), width, 0, 0, width);
+        anim.start();
+    }
+
+    private void initSearchBarListener() {
+        searchTopBinding.ibClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchTopBinding.textSearch.setText("");
+            }
+        });
+        searchTopBinding.ibClose.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchTopBinding.llSearch.setVisibility(View.GONE);
+                binding.searchBottom.rlSearchBottom.setVisibility(View.GONE);
+            }
+        });
+
+        binding.searchBottom.ivSearch.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchNext();
+            }
+        });
+        binding.searchBottom.buttonSearchNext.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchNext();
+            }
+        });
+
+        binding.searchBottom.buttonSearchPrev.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchPrevious();
+            }
+        });
+    }
+
+    private void initSaveWidgetListener() {
+        widgetSaveBinding.rlSave.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveContent();
+            }
+        });
+
+        widgetSaveBinding.rlSaveas.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveContentAs();
+            }
+        });
+
+        widgetSaveBinding.rlRecent.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TedLocalActivity.start(TedActivity.this, REQUEST_RECENT);
+            }
+        });
     }
 
     /**
@@ -1056,7 +1101,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        mWarnedShouldQuit = false;
         switch (item.getItemId()) {
             case MENU_ID_NEW:
                 newContent();
@@ -1175,70 +1219,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
     }
 
     /**
-     * @see OnClickListener#onClick(View)
-     */
-    @Override
-    public void onClick(View v) {
-        mWarnedShouldQuit = false;
-//        if (v.getId() == R.id.buttonSearchClose) {
-//            setSearchState();
-//        } else if (v.getId() == R.id.buttonSearchNext) {
-//            searchNext();
-//        } else if (v.getId() == R.id.buttonSearchPrev) {
-//            searchPrevious();
-//        }
-    }
-
-    /**
-     * Read the intent used to start this activity (open the text file) as well as the non configuration instance if
-     * activity is started after a screen rotate
-     */
-    protected void readIntent() {
-        readIntent(getIntent());
-    }
-
-    protected void readIntent(Intent intent) {
-        String action;
-        File file;
-
-        if (intent == null) {
-            if (CONF.DEBUG)
-                Log.d(TAG, "No intent found, use default instead");
-            doDefaultAction();
-            return;
-        }
-
-        action = intent.getAction();
-        if (action == null) {
-            if (CONF.DEBUG)
-                Log.d(TAG, "Intent w/o action, default action");
-            doDefaultAction();
-        } else if ((action.equals(Intent.ACTION_VIEW)) || (action.equals(Intent.ACTION_EDIT))) {
-            try {
-                file = new File(new URI(intent.getDataString()));
-                doOpenFile(file, false);
-            } catch (URISyntaxException e) {
-                Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
-            } catch (IllegalArgumentException e) {
-                Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
-            }
-        } else if (action.equals(ACTION_WIDGET_OPEN)) {
-            try {
-                file = new File(new URI(intent.getData().toString()));
-                doOpenFile(file, intent.getBooleanExtra(EXTRA_FORCE_READ_ONLY, false));
-            } catch (URISyntaxException e) {
-                Crouton.showText(this, R.string.toast_intent_invalid_uri, Style.ALERT);
-            } catch (IllegalArgumentException e) {
-                Crouton.showText(this, R.string.toast_intent_illegal, Style.ALERT);
-            }
-        } else if (action.equals(ACTION_WIDGET_TEXT)) {
-            doOpenText(intent.getStringExtra("TEXT"));
-        } else {
-            doDefaultAction();
-        }
-    }
-
-    /**
      * Run the default startup action
      */
     protected void doDefaultAction() {
@@ -1277,7 +1257,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         Settings.END_OF_LINE = Settings.DEFAULT_END_OF_LINE;
         mDirty = false;
         mReadOnly = false;
-        mWarnedShouldQuit = false;
         mWatcher = new TextChangeWatcher();
         mInUndo = false;
         mDoNotBackup = false;
@@ -1299,12 +1278,9 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
      * @return if the file was loaded successfully
      */
     protected boolean doOpenFile(File file, boolean forceReadOnly) {
-
         String text;
-
         if (file == null)
             return false;
-
         if (CONF.DEBUG)
             Log.i(TAG, "Openning file " + file.getName());
 
@@ -1372,17 +1348,18 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
      * @return if a backup file was loaded
      */
     protected boolean doOpenBackup() {
-
         String text;
-
         try {
             text = TextFileUtils.readInternal(this);
             if (!TextUtils.isEmpty(text)) {
                 mInUndo = true;
                 binding.editor.setText(text);
                 mWatcher = new TextChangeWatcher();
-                mCurrentFilePath = null;
-                mCurrentFileName = null;
+//                mCurrentFilePath = null;
+//                mCurrentFileName = null;
+                mCurrentFilePath = getPreferences(MODE_PRIVATE).getString("LAST_OPEN_PATH", "");
+                String[] findName = mCurrentFilePath.split("/");
+                mCurrentFileName = findName.length == 0 ? "" : findName[findName.length - 1];
                 mDirty = false;
                 mInUndo = false;
                 mDoNotBackup = false;
@@ -1469,7 +1446,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         runAfterSave();
     }
 
-    @SuppressWarnings("deprecation")
     protected void doAutoSaveFile(boolean show) {
         if (mDoNotBackup) {
             doClearContents();
@@ -1741,55 +1717,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         promptSaveDirty();
     }
 
-    /**
-     * Warns the user that the next back press will quit the application, or quit if the warning has already been shown
-     */
-    protected void warnOrQuit() {
-        if (mWarnedShouldQuit) {
-            quit();
-        } else {
-            Toast.makeText(getApplicationContext(), R.string.toast_warn_no_undo_will_quit, Toast.LENGTH_SHORT).show();
-
-            //Crouton.showText(this, R.string.toast_warn_no_undo_will_quit, Style.INFO);
-            mWarnedShouldQuit = true;
-        }
-    }
-
-//    @Override
-//    public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
-//        switch (item.getItemId()) {
-//            case 10:
-//                saveContentAs();
-//                break;
-//            case 20:
-//                openFile();
-//                break;
-//            case 25:
-//                saveContent();
-//                break;
-//
-//            case 30:
-//                // mBarM.show(item.getItemView());
-//                // SnippetsList();
-//                newProject();
-//
-//                // newContent();
-//                // NStorage.setSP(getApplicationContext(), "qedit.last_filename", "");
-//                // Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
-//
-//                break;
-//		/*
-//		 * case 35: newProject(); break;
-//		 */
-//
-//            case 50:
-//                onGSetting(null);
-//                break;
-//            default:
-//
-//        }
-//        return super.onHandleActionBarItemClick(item, position);
-//    }
 
     /**
      * Quit the app (user pressed back)
@@ -1907,10 +1834,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
                     // TODO: 2017-05-10
                 case KeyEvent.KEYCODE_SEARCH:
                     setSearchState();
-                    mWarnedShouldQuit = false;
                     break;
             }
-            mWarnedShouldQuit = false;
         }
 
         return super.onKeyDown(keyCoder, event);
@@ -2384,30 +2309,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher, OnC
         promptSaveDirty();
     }
 
-    /**
-     * Update the window title
-     */
-    protected void updateTitle() {
-        String title;
-        String name;
-
-        name = "?";
-        if ((mCurrentFileName != null) && (mCurrentFileName.length() > 0))
-            name = mCurrentFileName;
-
-        // Log.d(TAG, "updateTitle:"+mCurrentFileName);
-
-        if (mReadOnly)
-            title = getString(R.string.title_editor_readonly, name);
-        else if (mDirty)
-            title = getString(R.string.title_editor_dirty, name);
-        else
-            title = getString(R.string.title_editor, name);
-
-        setTitle(title);
-
-        invalidateOptionsMenu();
-    }
 
     private void setTitle(String title) {
         binding.tvTitle.setText(title);
