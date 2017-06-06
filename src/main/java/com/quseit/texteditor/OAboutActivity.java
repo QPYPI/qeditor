@@ -2,6 +2,7 @@ package com.quseit.texteditor;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -18,7 +19,6 @@ public class OAboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setActionBarContentView(R.layout.o_about);
         setTitle(R.string.m_title_aboutus);
-        
         initWidgetTabItem(3);
         
 		//NAction.recordUserLog(getApplicationContext(), "about", "");
@@ -67,11 +67,10 @@ public class OAboutActivity extends BaseActivity {
     }
 	
 	public void checkUpdate(View v) {
-
 		//if (NUtil.netCheckin(getApplicationContext())) {
 			String[] conf = NAction.getAppConf(getApplicationContext());
 			if (conf[6].equals("")) {
-				checkUpdate(getApplicationContext(), false);
+				checkConfUpdate(getApplicationContext());
 				
 			}  else {
 				NAction.recordAdLog(getApplicationContext(), "feedback", "");
