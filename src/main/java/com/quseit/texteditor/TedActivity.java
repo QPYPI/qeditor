@@ -19,6 +19,7 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -36,7 +37,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -83,13 +83,13 @@ import static com.quseit.texteditor.androidlib.ui.activity.ActivityDecorator.sho
  */
 
 public class TedActivity extends Activity implements Constants, TextWatcher {
-    public static final String TAG      = "TED";
+    public static final    String TAG             = "TED";
     protected static final int    SCRIPT_EXEC_PY  = 2235;
     private static final   String WEB_PROJECT     = "web";
     private static final   String CONSOLE_PROJECT = "console";
     private static final   String KIVY_PROJECT    = "kivy";
     protected static boolean mReadIntent;
-    final               int    DOC_FLAG = 10001;
+    final int DOC_FLAG = 10001;
     protected String            mCurrentFilePath;
     protected String            mCurrentFileName;
     /**
@@ -311,7 +311,8 @@ public class TedActivity extends Activity implements Constants, TextWatcher {
                         && (mCurrentFilePath.endsWith(".py") || mCurrentFilePath.endsWith(".md")
                         || mCurrentFilePath.endsWith(".html") || mCurrentFilePath.endsWith(".htm")
                         || mCurrentFilePath.endsWith(".lua") || mCurrentFilePath.endsWith(".sh"))) {
-                    runScript();
+//                    runScript();
+                    sendBroadcast();
                 } else {
                     Toast.makeText(TedActivity.this, R.string.qedit_not_support, Toast.LENGTH_SHORT).show();
                 }
@@ -1796,7 +1797,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher {
                     rightIndent();
                     break;
                 case KeyEvent.KEYCODE_R:
-                    runScript();
+//                    runScript();
                     break;
                 case KeyEvent.KEYCODE_SOFT_LEFT:
 
@@ -1808,7 +1809,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher {
                 // F5 ,run the code
                 case KeyEvent.KEYCODE_F5:
                     // Toast.makeText(this,"f5 f5 f5", Toast.LENGTH_SHORT).show();
-                    runScript();
+//                    runScript();
                     break;
                 // tab ,input 4 space
                 case KeyEvent.KEYCODE_TAB:
@@ -1822,16 +1823,6 @@ public class TedActivity extends Activity implements Constants, TextWatcher {
                     binding.editor.findFocus();
                     // Toast.makeText(this,"tab tab tab", Toast.LENGTH_SHORT).show();
                     break;
-                case KeyEvent.KEYCODE_BACK:
-
-//                    if (mSearchLayout.getVisibility() != View.GONE)
-//                        setSearchState();
-//                    else if (Settings.UNDO && Settings.BACK_BTN_AS_UNDO) {
-//
-//                        if (!undo())
-//                            warnOrQuit();
-//                    }
-                    // TODO: 2017-05-10
                 case KeyEvent.KEYCODE_SEARCH:
                     setSearchState();
                     break;
@@ -2275,6 +2266,13 @@ public class TedActivity extends Activity implements Constants, TextWatcher {
         }
     }
 
+    private void sendBroadcast() {
+        Intent intent = new Intent("custom-event-name");
+        // You can also include some extra data.
+        intent.putExtra("message", "This is my message!");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
     /**
      * Opens the about activity
      */
@@ -2414,7 +2412,7 @@ public class TedActivity extends Activity implements Constants, TextWatcher {
         try {
             String localPlugin = this.getPackageName();
             Intent intent = new Intent();
-            intent.setClassName(localPlugin, MPyApi.class.getName());
+//            intent.setClassName(localPlugin, MPyApi.class.getName());
             intent.setAction("org.qpython.qpylib.action.MPyApi");
 
             Bundle mBundle = new Bundle();

@@ -36,6 +36,4 @@ public class CONF extends com.quseit.config.CONF {
     public final static String DFROM_PRJ3 = "projects3";
 
     public static final String ABSOLUTE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + BASE_PATH;
-    public static final String LIB_PATH      = ABSOLUTE_PATH + "/" + "lib";
-
 }
