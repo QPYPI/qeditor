@@ -118,7 +118,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 
 			initDrawerMenu(this);
 
-			checkUpdate(CONF.BASE_PATH);
+			checkConfUpdate(CONF.BASE_PATH);
 
 		}
 

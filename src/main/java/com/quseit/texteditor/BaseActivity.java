@@ -104,7 +104,7 @@ public class BaseActivity extends QBaseActivity {
 
 				addActionBarItem(getGDActionBar()
 						.newActionBarItem(NormalActionBarItem.class)
-						.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow_dark)), 40);
+						.setDrawable(new ActionBarDrawable(this, R.drawable.ic_action_overflow)), 40);
 
 			} else {
 			    addActionBarItem(getGDActionBar()
