@@ -808,7 +808,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	 * onQuickActionClicked(QuickActionWidget widget, int position) { switch (position) { case 0: newContent(); break;
 	 * case 1: onPlay(null); //openFile(); break; case 2: String link = NAction.getExtP(getApplicationContext(),
 	 * "conf_manul_link"); if (link.equals("")) { link = CONF.MANUAL_LINK; }
-	 * startActivity(NAction.openRemoteLink(getApplicationContext(), link)); break; default: } } };
+	 * startActivity(NAction.getLinkAsIntent(getApplicationContext(), link)); break; default: } } };
 	 */
 
 	/**
