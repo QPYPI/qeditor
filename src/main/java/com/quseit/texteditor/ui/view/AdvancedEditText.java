@@ -322,8 +322,8 @@ public class AdvancedEditText extends EditText implements Constants,
 			mMaxSize = null;
 		}
 		
-		if ((fileType.equals("py") || fileType.equals("lua"))
-				&& this.getLineCount()<Settings.MAX_LINES_NUM_WITH_SYNTAX) {
+		if ((fileType.equals("py") || fileType.equals("lua"))) {
+				//&& this.getLineCount()<Settings.MAX_LINES_NUM_WITH_SYNTAX) {
 			//Log.d(TAG, "init OK");
 			isWatch = true;
 			init();
@@ -780,6 +780,11 @@ public class AdvancedEditText extends EditText implements Constants,
 		String indent = "";
 		int istart = dstart-1;
 		int iend = -1;
+
+		if (istart > 0) {
+
+			if (dest.charAt(istart) == ':') indent += "    ";
+		}
 
 		// find start of this line
 		boolean dataBefore = false;
