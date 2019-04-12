@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 26
     }
 
     buildTypes {
@@ -19,9 +19,9 @@ android {
 }
 
 dependencies {
-    compile project(':qbaselib')
-    compile project(':qgdlib')
+    api project(':qbaselib')
+    api project(':qgdlib')
 
-    compile project(':qconsole')
-    compile files('libs/markdown4j.jar')
+    api project(':qconsole')
+    api files('libs/markdown4j.jar')
 }
