@@ -896,7 +896,9 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 //			if (NAction.getCode(this).startsWith("lua")) {
 //				Search = "http://qlua.quseit.com/doc/?q=" + selectedText;
 //			}
-			Intent intent = new Intent(getApplicationContext(), MiniWebViewActivity.class);
+			Intent intent = new Intent();
+			intent.setClassName(getApplicationContext(), "org.qpython.qpylib.MiniWebviewActivity");
+			//Intent intent = new Intent(getApplicationContext(), MiniWebViewActivity.class);
 			Uri data = Uri.parse(Search);
 			mReadIntent = false;
 			IS_DOC_BACK = true;
@@ -1600,14 +1602,6 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	}
 
 	/**
-	 * @param v
-	 */
-	public void onBrowser(View v) {
-		Intent intent = new Intent(this, MiniWebViewActivity.class);
-		startActivity(intent);
-	}
-
-	/**
 	 * Open the recent files activity to open
 	 */
 	protected void openRecentFile() {
@@ -2292,8 +2286,9 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 					if (content.startsWith("<") || mCurrentFilePath.endsWith(".md") || mCurrentFilePath.endsWith(".html")) {
 						// doAutoSaveFile(false);
 						doSaveFile(mCurrentFilePath, false);
-	
-						Intent intent = new Intent(getApplicationContext(), MiniWebViewActivity.class);
+						Intent intent = new Intent();
+						intent.setClassName(getApplicationContext(), "org.qpython.qpylib.MiniWebviewActivity");
+						//Intent intent = new Intent(getApplicationContext(), MiniWebViewActivity.class);
 						Uri data = Uri.fromFile(new File(mCurrentFilePath));
 						intent.setData(data);
 						startActivity(intent);
