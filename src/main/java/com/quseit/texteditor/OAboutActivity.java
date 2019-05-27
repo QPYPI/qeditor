@@ -57,13 +57,9 @@ public class OAboutActivity extends BaseActivity {
         	feedT.setVisibility(View.VISIBLE);
         }
         if (!privacyUrl.equals("") && !privacyTitle.equals("")) {
-        	feedLink.setText(privacyUrl);
-        	feedLink.setVisibility(View.VISIBLE);
+            feedLink.setText(privacyUrl);
+            feedLink.setVisibility(View.VISIBLE);
         }
-        
-        MNApp mnApp = (MNApp) this.getApplication();
-
-        MyApp.getInstance().addActivity(this); 
     }
 	
 	public void checkUpdate(View v) {

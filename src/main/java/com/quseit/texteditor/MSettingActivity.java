@@ -116,9 +116,6 @@ public class MSettingActivity extends BaseActivity {
 		displayProxy();
         showRecommandAd();
         
-        MNApp mnApp = (MNApp) this.getApplication();
-
-        MyApp.getInstance().addActivity(this); 
     }
  
     public void showRecommandAd() {

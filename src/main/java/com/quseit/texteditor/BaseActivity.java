@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.quseit.base.DialogBase;
 import com.quseit.base.MyApp;
@@ -25,9 +26,6 @@ import greendroid.widget.ActionBarItem;
 import greendroid.widget.NormalActionBarItem;
 import greendroid.widget.QuickAction;
 
-//import com.google.android.gms.ads.AdRequest;
-//import com.google.android.gms.ads.AdView;
-
 public class BaseActivity extends QBaseActivity {
     protected static final int SCRIPT_EXEC_PY = 2235;  
     protected static final int SCRIPT_EXEC_CODE = 1235;  
@@ -36,10 +34,6 @@ public class BaseActivity extends QBaseActivity {
     protected void onDestroy() {
         LinearLayout modBanner = (LinearLayout)findViewById(R.id.modbanner);
 
-//        if (adMob!=null) {
-//            adMob.destroy();
-//        }
-//        
         if (modBanner!=null) {
             modBanner.removeAllViews();
         }
@@ -120,12 +114,6 @@ public class BaseActivity extends QBaseActivity {
 			addActionBarItem(getGDActionBar()
 					.newActionBarItem(NormalActionBarItem.class)
 					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_folder_open_white)), 20);
-
-//			if (flag == 5) {
-//				addActionBarItem(getGDActionBar()
-//		        		.newActionBarItem(NormalActionBarItem.class)
-//		        		.setDrawable(new ActionBarDrawable(this, R.drawable.ic_save_white)), 25);
-//			}
 			addActionBarItem(getGDActionBar()
 					.newActionBarItem(NormalActionBarItem.class)
 					.setDrawable(new ActionBarDrawable(this, R.drawable.ic_more_vert_white)), 50);
@@ -215,16 +203,10 @@ public class BaseActivity extends QBaseActivity {
 	public void callPyApi(String flag, String param, String pyCode) {
     	String proxyCode = "";
     	String extPlgPlusName = com.quseit.config.CONF.EXT_PLG;
-    	String extPlg3Name = CONF.EXT_PLG_3;
-		String extPlgName = NAction.getExtP(getApplicationContext(), "ext_plugin");
-		if (extPlgName.equals("")) {
-			extPlgName = com.quseit.config.CONF.EXT_PLG;
-		}
-		
-		String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg");
-		if (plgUrl.equals("")) {
-			plgUrl = com.quseit.config.CONF.EXT_PLG_URL;
-		}
+    	String extPlg3Name = CONF.EXT_PLG3;
+		String extPlgName  = com.quseit.config.CONF.EXT_PLG;
+
+
 		try {
 			String localPlugin = this.getPackageName();
 			Intent intent = new Intent();
@@ -232,7 +214,7 @@ public class BaseActivity extends QBaseActivity {
 			intent.setAction("org.qpython.qpylib.action.MPyApi");
 			
 			Bundle mBundle = new Bundle(); 
-			mBundle.putString("root", MyApp.getInstance().getRoot());
+			mBundle.putString("root", CONF.BASE_PATH);
 	
 			mBundle.putString("app", NAction.getCode(getApplicationContext()));
 			mBundle.putString("act", "onPyApi");
@@ -268,18 +250,8 @@ public class BaseActivity extends QBaseActivity {
 		    		WBase.setTxtDialogParam(0, R.string.pls_install_qpy, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-		    				String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg3");
-		    				if (plgUrl.equals("")) {
-		    					plgUrl = CONF.EXT_PLG_URL3;
-		    				}
-		    				try {
-								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
-								startActivity(intent);
-		    				} catch (Exception e) {
-		    					plgUrl = CONF.EXT_PLG_URL3;
-								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
-								startActivity(intent);
-		    				}
+		    				Intent in = NAction.getLinkAsIntent(getApplicationContext(), "https://qpython.org");
+		    				startActivity(in);
 						}
 					}, null);
 		    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
@@ -322,22 +294,8 @@ public class BaseActivity extends QBaseActivity {
 					
 					startActivityForResult(intent, SCRIPT_EXEC_PY);
 					
-				}  else {
-								
-		    		WBase.setTxtDialogParam(0, R.string.pls_install_qpy, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-		
-		    				String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg");
-		    				if (plgUrl.equals("")) {
-		    					plgUrl = com.quseit.config.CONF.EXT_PLG_URL;
-		    				}
-							Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
-							startActivity(intent);
-						}
-					}, null);
-		    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
-		    		dialogIndex++;
+				} else {
+					Toast.makeText(getApplicationContext(),"Please install QPython from app store", Toast.LENGTH_LONG).show();
 				}
 			}
 
@@ -359,131 +317,7 @@ public class BaseActivity extends QBaseActivity {
 	public Class<?> getUpdateSrv() {
 		return null;
 	}
-	
-    @SuppressWarnings("deprecation")
-	@SuppressLint("DefaultLocale")
-	public void playFromRemote(String link) {
-    	String code = NAction.getCode(getApplicationContext());
-        if (code.startsWith("mn")) {
-        	
-			String a8Name = NAction.getExtP(getApplicationContext(), "extend_a8_pkg");
-			if (a8Name.equals("")) {
-				a8Name = CONF.A8_PLAY;
-			}
-			
-			String pluginName1 = NAction.getExtP(getApplicationContext(), "extend_plugin_pkg1");
-			if (pluginName1.equals("")) {
-				pluginName1 = CONF.PLAY_PLUGIN_1;
-			}
-			
-			String pluginName2 = NAction.getExtP(getApplicationContext(), "extend_plugin_pkg2");
-			if (pluginName2.equals("")) {
-				pluginName2 = CONF.PLAY_PLUGIN_2;
-			}
-			if (NUtil.checkAppInstalledByName(getApplicationContext(), pluginName2)) {
-				
-	    		Intent intent = new Intent();
-	    		intent.setClassName(pluginName2, "com.quseit.p.PLAPlayerAct");
-	    		intent.setAction("android.intent.action.VIEW");
-	    		Uri uri = Uri.parse(link);
-	    		intent.setDataAndType(uri , "video/*");
-	    		startActivity(intent);
-	    		
-			} else if (NUtil.checkAppInstalledByName(getApplicationContext(), pluginName1)) {
-				
-	    		Intent intent = new Intent();
-	    		intent.setClassName(pluginName1, "com.quseit.p.PLAPlayerAct");
-	    		intent.setAction("android.intent.action.VIEW");
-	    		Uri uri = Uri.parse(link);
-	    		intent.setDataAndType(uri , "video/*");
-	    		startActivity(intent);
-			} else {
-				
-				boolean useDefault = false;
-				int indexOfDot = link.lastIndexOf('.');
-				if (indexOfDot != -1) {
-					String extension = link.substring(indexOfDot).toLowerCase();
-					if (extension.compareTo(".mp4") == 0) {
-						useDefault = true;
-					}
-				}
-			
-				if (!useDefault) {
-			    	String a8VName = this.getPackageName();
-			    	
-					Intent intent = new Intent();
-					intent.setClassName(a8VName, "com.quseit.p.FFMpegPlayer");
-					intent.setAction("android.intent.action.VIEW");
-					Uri uri = Uri.parse(link);
-					intent.setDataAndType(uri , "video/*");
-					startActivity(intent);
-				} else {
-			    	String a8VName = this.getPackageName();
-			    	
-					Intent intent = new Intent();
-					intent.setClassName(a8VName, "com.quseit.m.PLAPlayerAct");
-					intent.setAction("android.intent.action.VIEW");
-					Uri uri = Uri.parse(link);
-					intent.setDataAndType(uri , "video/*");
-					startActivity(intent);
-				}
-			}
-			
-        } else {	// 不是MVP        	
-			String pkgName = NAction.getExtP(getApplicationContext(), "extend_a8_pkg");
-			if (pkgName.equals("")) {
-				pkgName = CONF.A8_PLAY;
-			}
-			if (NUtil.checkAppInstalledByName(getApplicationContext(), pkgName)) {
-	        	String a8Name = CONF.A8_PLAY;
-	        	
-	    		Intent intent = new Intent();
-	    		intent.setClassName(a8Name, "com.quseit.mna8.PLAPlayerAct");
-	    		intent.setAction("android.intent.action.VIEW");
-	    		
-	    		Uri uri = Uri.parse(link);
-	    		intent.setDataAndType(uri , "video/*");
-	    		startActivity(intent);
-				
-			} else {
-				// 检查MVP是否在
-				String mpvName = CONF.MPV_PLAY;
-				if (NUtil.checkAppInstalledByName(getApplicationContext(), mpvName)) {
-		    		Intent intent = new Intent();
-		    		intent.setClassName(mpvName, "com.quseit.m.PLAPlayerAct");
-		    		intent.setAction("android.intent.action.VIEW");
-		    		
-		    		Uri uri = Uri.parse(link);
-		    		intent.setDataAndType(uri , "video/*");
-		    		startActivity(intent);
-				} else {
-				
-		    		WBase.setTxtDialogParam(0, R.string.pls_install_a8_play, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							String pkgUrl = NAction.getExtP(getApplicationContext(), "extend_a8_play_url");
-							if (pkgUrl.equals("")) {
-								pkgUrl = CONF.A8_PLAY_URL;
-							}
-							
-							//if (pkgUrl.startsWith("http:")) {
-							try {
-								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), pkgUrl);
-								startActivity(intent);
-							} catch (Exception e) {
-								pkgUrl = CONF.A8_PLAY_URL2;
-								Intent intent = NAction.getLinkAsIntent(getApplicationContext(), pkgUrl);
-								startActivity(intent);
-							}
-						}
-					}, null);
-		    		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
-		    		dialogIndex++;
-				}
-			}        	
-        }
-    }
-    
+
     private static final int SCRIPT_CONSOLE_CODE = 1237;
 
     public void execInConsole(String[] args) {

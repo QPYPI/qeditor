@@ -59,10 +59,6 @@ public class MFTPSettingActivity extends BaseActivity {
         filter.addAction(org.swiftp.FTPServerService.ACTION_STOPPED);
         filter.addAction(org.swiftp.FTPServerService.ACTION_FAILEDTOSTART);
         registerReceiver(ftpServerReceiver, filter);
-        
-        MNApp mnApp = (MNApp) this.getApplication();
-
-        MyApp.getInstance().addActivity(this); 
     }
     
     @Override

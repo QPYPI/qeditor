@@ -73,11 +73,6 @@ import com.quseit.base.MyApp;
 import com.quseit.util.NAction;
 import com.quseit.util.NStorage;
 
-//import com.quseit.texteditor.widget.crouton.Crouton;
-//import com.quseit.texteditor.widget.crouton.Style;
-//import android.content.res.Configuration;
-//import greendroid.widget.QuickActionWidget.OnQuickActionClickListener;
-
 /**
  * @author River
  * 
@@ -89,10 +84,6 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	final int DOC_FLAG = 10001;
 
 	boolean IS_DOC_BACK = false;
-
-	protected QuickActionWidget mBarM;
-
-	private int exitCount = 0;
 
 	private QuickActionWidget mBar;
 
@@ -108,9 +99,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		setActionBarContentView(R.layout.layout_editor);
 		String code = NAction.getCode(this);
 		setTitle(getString(R.string.app_name));
-		// if (code.contains("qpy") || code.contains("lua")) {
 		initAD(TAG);
-		// }
 
 		if (code.contains("qedit")) {
 			ImageButton homeBtn = (ImageButton) findViewById(R.id.gd_action_bar_home_item);
@@ -162,8 +151,6 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 		 * R.string.code_snippets)); mBar.addQuickAction(new MyQuickAction(this, R.drawable.ic_menu_share,
 		 * R.string.share)); mBar.setOnQuickActionClickListener(mActionListener);
 		 */
-
-		MyApp.getInstance().addActivity(this, CONF.BASE_PATH, "");
 
 		String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString()
 				+ "/" + CONF.BASE_PATH;
@@ -218,12 +205,6 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 	public void onDestroy() {
 		// stopQPyService(this);
 		super.onDestroy();
-		String code = NAction.getCode(this);
-
-		if (code.equals("qedit")) {
-
-			MyApp.getInstance().exit();
-		}
 	}
 
 	private OnQuickActionClickListener mActionListener = new OnQuickActionClickListener() {

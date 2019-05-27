@@ -1,6 +1,5 @@
 package com.quseit.texteditor;
 
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -47,7 +46,7 @@ import greendroid.widget.item.LongTextItem;
 import greendroid.widget.item.TextItem;
 
 public class TedLocalActivity extends BaseActivity implements Constants {
-	private static final String TAG = "local";
+	private static final String TAG = "TedLocalActivity";
 
 	private Stack<String> curArtistDir;
 	private QuickActionWidget mBarT;
@@ -74,12 +73,10 @@ public class TedLocalActivity extends BaseActivity implements Constants {
         setActionBarContentView(R.layout.m_ted_local);
         setTitle(R.string.app_name);
         
-        //initWidgetTabItem(7);
 		initAD(TAG);
         
     	ListView listView = (ListView)findViewById(android.R.id.list);
-    	//listView.addHeaderView(LayoutInflater.from(this).inflate(R.layout.v_local_bar, null));
-    	
+
     	listView.setDivider(new ColorDrawable(getResources().getColor(R.color.cgrey6)));
     	listView.setDividerHeight(1);
     	listView.setCacheColorHint(0);
