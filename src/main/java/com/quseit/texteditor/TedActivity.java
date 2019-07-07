@@ -2283,6 +2283,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 						// qpy not support
 					}
 					else if (mCurrentFilePath.endsWith(".lua")) {
+						Log.d(TAG, "runScript from QEDIT:"+mCurrentFilePath);
 	
 						callLuaApi("qedit", mCurrentFilePath, content);
 	

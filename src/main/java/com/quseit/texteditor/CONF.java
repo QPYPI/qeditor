@@ -1,7 +1,6 @@
 package com.quseit.texteditor;
 
 public class CONF extends com.quseit.config.CONF{
-    public final static String BASE_PATH = "qpython";
     public final static String COMMUNITY_LINK = "https://qpython.com/qedit/";
     public final static String NEWS_LINK = "https://qpython.com/qedit/news/";
     public final static String QEDIT_RATE_LINK = "https://www.facebook.com/QEditor";

@@ -158,32 +158,31 @@ public class BaseActivity extends QBaseActivity {
     @SuppressWarnings("deprecation")
 	public void callLuaApi(String flag, String param, String luaCode) {
 		String code = NAction.getCode(this);
-		String luaApp = "com.quseit.qlua5pro2";
+		//String luaApp = "com.quseit.qlua5pro2";
 		// todo
 		if (code.contains("lua")) {
 			Intent intent = new Intent(".QLUAIndexActivity");
 			intent.putExtra(CONF.EXTRA_CONTENT_URL0, param);
 			sendBroadcast(intent);
 
-		}  else {
+		} else {
     		WBase.setTxtDialogParam(0, R.string.pls_install_lua, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					
-    				String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg4");
-    				if (plgUrl.equals("")) {
-    					plgUrl = CONF.EXT_PLG_URL4;
-    				}
-    				try {
-						Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
-						startActivity(intent);
-    				} catch (Exception e) {
-    					plgUrl = CONF.EXT_PLG_URL4;
-						Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
-						startActivity(intent);
-    				}
+				String plgUrl = NAction.getExtP(getApplicationContext(), "ext_plugin_pkg4");
+				if (plgUrl.equals("")) {
+					plgUrl = CONF.EXT_PLG_URL4;
 				}
-				}, null);
+				try {
+					Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
+					startActivity(intent);
+				} catch (Exception e) {
+					plgUrl = CONF.EXT_PLG_URL4;
+					Intent intent = NAction.getLinkAsIntent(getApplicationContext(), plgUrl);
+					startActivity(intent);
+				}
+			}
+			}, null);
     		
     		showDialog(DialogBase.DIALOG_EXIT+dialogIndex);
     		dialogIndex++;

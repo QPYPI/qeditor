@@ -8,6 +8,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+
     }
 
     buildTypes {
@@ -16,6 +17,31 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    /*productFlavors {
+        qlua {
+            dimension "qlua"
+
+//            resValue "string", "app_name", "Qpython"
+        }
+
+        qpy {
+            dimension "qpy"
+
+//            resValue "string", "app_name", "Qpython"
+        }
+
+        google {
+            dimension "default"
+
+
+        }
+        cn {
+            dimension "cn"
+
+
+        }
+    }*/
 }
 
 dependencies {
