@@ -170,24 +170,23 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 			String file2 = LoadDataFromAssets("The_MIT_License");
 			writeToFile(path + "/The_MIT_License", file2);
 		}
-		if (code.startsWith("qpy")) {
-			f = new File(path + "/QPy_WebApp");
-			if (!f.exists()) {
-				String file2 = LoadDataFromAssets("QPy_WebApp");
-				writeToFile(path + "/QPy_WebApp", file2);
-			}
 
-			f = new File(path + "/QPy_KivyApp");
-			if (!f.exists()) {
-				String file2 = LoadDataFromAssets("QPy_KivyApp");
-				writeToFile(path + "/QPy_KivyApp", file2);
-			}
+		f = new File(path + "/QPy_WebApp");
+		if (!f.exists()) {
+			String file2 = LoadDataFromAssets("QPy_WebApp");
+			writeToFile(path + "/QPy_WebApp", file2);
+		}
 
-			f = new File(path + "/QPy_ConsoleApp");
-			if (!f.exists()) {
-				String file2 = LoadDataFromAssets("QPy_ConsoleApp");
-				writeToFile(path + "/QPy_ConsoleApp", file2);
-			}
+		f = new File(path + "/QPy_SL4AApp");
+		if (!f.exists()) {
+			String file2 = LoadDataFromAssets("QPy_SL4AApp");
+			writeToFile(path + "/QPy_SL4AApp", file2);
+		}
+
+		f = new File(path + "/QPy_ConsoleApp");
+		if (!f.exists()) {
+			String file2 = LoadDataFromAssets("QPy_ConsoleApp");
+			writeToFile(path + "/QPy_ConsoleApp", file2);
 		}
 		String lastFile = NStorage.getSP(this, "qedit.last_filename");
 		if (!lastFile.equals("")) {
@@ -1489,7 +1488,7 @@ public class TedActivity extends BaseActivity implements Constants, TextWatcher,
 
 											}
 											else {
-												insertSnippet("QPy_KivyApp");
+												insertSnippet("QPy_SL4AApp");
 
 											}
 											saveContent();
